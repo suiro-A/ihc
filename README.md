@@ -60,3 +60,32 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 # ihc
+
+
+# ejecutar
+
+## Cómo iniciar y ejecutar el proyecto
+
+1. Instala las dependencias de PHP por si las dudas:
+   ```
+   composer install
+   ```
+
+2. Instala las dependencias de Node.js o vite:
+   ```
+   npm install
+   ```
+
+
+3. Inicia el servidor de desarrollo de Laravel:
+   ```
+   php artisan serve
+   ```
+
+4. Compila los assets de frontend:
+   ```
+   npm run dev
+   ```
+
+Ahora puedes acceder a la aplicación en [http://localhost:8000](http://localhost:8000).
+
