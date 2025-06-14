@@ -15,8 +15,11 @@
             <p class="text-gray-600">Seleccione un paciente para ver su historial clínico</p>
         </div>
         <div class="p-6">
+            <div class="mb-4">
+                <input type="text" id="buscador-pacientes" placeholder="Buscar por nombre o DNI..." class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
+                <table id="tabla-pacientes" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
@@ -68,4 +71,19 @@
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('buscador-pacientes').addEventListener('keyup', function() {
+        let filtro = this.value.toLowerCase();
+        let filas = document.querySelectorAll('#tabla-pacientes tbody tr');
+        filas.forEach(function(fila) {
+            let nombre = fila.cells[0].innerText.toLowerCase();
+            let dni = fila.cells[1].innerText.toLowerCase();
+            if (nombre.includes(filtro) || dni.includes(filtro)) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+    });
+</script>
 @endsection
