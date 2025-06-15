@@ -127,24 +127,33 @@ class DoctorController extends Controller
         return view('doctor.historial.paciente', compact('paciente', 'historial'));
     }
 
-    public function detalleCita($id)
-    {
-        $doctor = $this->getCurrentUser();
-        $cita = DataService::findCita($id);
-        
-        if (!$cita || $cita['doctor_id'] != $doctor['id']) {
-            abort(404, 'Cita no encontrada');
-        }
-        
-        $paciente = DataService::findPaciente($cita['paciente_id']);
-        $cita['paciente'] = $paciente;
-        
-        $historial = DataService::getHistorialByPaciente($cita['paciente_id'])
-                               ->sortByDesc('fecha_consulta')
-                               ->take(5);
-        
-        return view('doctor.citas.detalle', compact('cita', 'historial'));
+public function detalleCita($id)
+{
+    $doctor = $this->getCurrentUser();
+    $cita = \App\Services\DataService::findCita($id);
+
+    if (!$cita || $cita['doctor_id'] != $doctor['id']) {
+        abort(404, 'Cita no encontrada');
     }
+
+    $paciente = \App\Services\DataService::findPaciente($cita['paciente_id']);
+    $cita['paciente'] = $paciente;
+
+    $historial = \App\Services\DataService::getHistorialByPaciente($cita['paciente_id'])
+        ->sortByDesc('fecha_consulta')
+        ->take(5);
+
+    // Buscar diagnóstico asociado a esta cita
+    $diagnosticoActual = collect(\App\Services\DataService::getHistorialByPaciente($cita['paciente_id']))
+        ->where('cita_id', $cita['id'])
+        ->first();
+
+    // Buscar receta médica asociada a esta cita
+    $recetaActual = $diagnosticoActual;
+
+    // ¡Agrega $diagnosticoActual aquí!
+    return view('doctor.citas.detalle', compact('cita', 'historial', 'diagnosticoActual', 'recetaActual'));
+}
 
     public function guardarDiagnostico(Request $request, $citaId)
     {
@@ -167,4 +176,26 @@ class DoctorController extends Controller
         return redirect()->route('doctor.citas.detalle', $citaId)
                         ->with('success', 'Diagnóstico guardado exitosamente.');
     }
+
+    public function guardarReceta(Request $request, $citaId)
+{
+    $request->validate([
+        'medicamento' => 'required|string',
+        'dosis' => 'required|string',
+        'frecuencia' => 'required|string',
+        'duracion' => 'required|string',
+    ]);
+
+    $doctor = $this->getCurrentUser();
+    $cita = \App\Services\DataService::findCita($citaId);
+
+    if (!$cita || $cita['doctor_id'] != $doctor['id']) {
+        abort(404, 'Cita no encontrada');
+    }
+
+    // Aquí guardarías la receta en la base de datos o servicio correspondiente
+
+    return redirect()->route('doctor.citas.detalle', $citaId)
+        ->with('success', 'Receta médica guardada exitosamente.');
+}
 }

@@ -225,7 +225,7 @@ class DataService
             [
                 'id' => 1,
                 'paciente_id' => 1,
-                'cita_id' => 6,
+                'cita_id' => 1,
                 'doctor_id' => 1,
                 'diagnostico' => 'Hipertensión arterial controlada',
                 'indicaciones' => 'Continuar con medicación actual. Dieta baja en sodio y ejercicio regular.',
