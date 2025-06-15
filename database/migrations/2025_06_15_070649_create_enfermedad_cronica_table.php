@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('historial_enfermedad', function (Blueprint $table) {
-            $table->id();
+        Schema::create('enfermedad_cronica', function (Blueprint $table) {
+            $table->id('id_enfermedad');
+            $table->string('descripcion');
             $table->timestamps();
         });
     }
@@ -22,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('historial_enfermedad');
+        Schema::dropIfExists('enfermedad_cronica');
     }
 };
