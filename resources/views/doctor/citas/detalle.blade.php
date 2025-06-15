@@ -94,13 +94,13 @@
                                 <label for="diagnostico" class="block text-sm font-medium text-gray-700">Diagnóstico</label>
                                 <textarea id="diagnostico" name="diagnostico" rows="4"
                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                          placeholder="Ingrese el diagnóstico" required></textarea>
+                                          placeholder="Ingrese el diagnóstico" required>{{ old('diagnostico', $diagnosticoActual['diagnostico'] ?? '') }}</textarea>
                             </div>
                             <div>
                                 <label for="indicaciones" class="block text-sm font-medium text-gray-700">Indicaciones</label>
                                 <textarea id="indicaciones" name="indicaciones" rows="4"
                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                          placeholder="Ingrese las indicaciones para el paciente"></textarea>
+                                          placeholder="Ingrese las indicaciones para el paciente">{{ old('indicaciones', $diagnosticoActual['indicaciones'] ?? '') }}</textarea>
                             </div>
                             <div class="flex justify-end gap-2">
                                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
