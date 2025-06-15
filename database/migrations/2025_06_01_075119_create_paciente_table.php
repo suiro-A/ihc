@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id('id_paciente');
             $table->string('nombres',40);
             $table->string('apellidos',40);
-            $table->string('dni',40);
+            $table->string('dni',8);
             $table->date('fecha_nac');
             $table->boolean('sexo');
-            $table->string('telefono',40);
+            $table->string('telefono',15);
             $table->string('correo',40);
             $table->timestamps();
         });

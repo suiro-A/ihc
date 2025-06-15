@@ -59,7 +59,8 @@
             </div>
             <nav class="mt-6">
                 <ul>
-                    @php $role = session('user_data')['role'] ?? null; @endphp
+                    {{-- @php $role = session('user_data')['role'] ?? null; @endphp --}}
+                    @php $role = 'recepcionista'; @endphp
 
                     @if($role === 'administrativo')
                         <li>
@@ -100,7 +101,8 @@
                         </li>
                     @elseif($role === 'recepcionista')
                         <li>
-                            <a href="#"
+                            <a 
+                                href="{{ route('recepcionista.dashboard') }}"
                                 class="flex items-center py-3 text-gray-700 hover:bg-green-50
                                     {{ request()->routeIs('recepcionista.dashboard') ? 'bg-green-100 font-bold text-green-700' : '' }}"
                                 :class="open ? 'px-4 justify-start' : 'justify-center'"
@@ -111,32 +113,45 @@
                                 <span x-show="open" class="transition-all duration-200">Dashboard</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="#"
-                                class="flex items-center py-3 text-gray-700 hover:bg-green-50
-                                    {{ request()->routeIs('recepcionista.pacientes.registrar') ? 'bg-green-100 font-bold text-green-700' : '' }}"
+
+                        <!-- Paciente con submenú -->
+                        <li x-data="{ pacienteOpen: false }">
+                            <button type="button"
+                                @click="pacienteOpen = !pacienteOpen"
+                                class="flex items-center w-full py-3 text-gray-700 hover:bg-green-50 focus:outline-none
+                                    {{ request()->routeIs('recepcionista.pacientes.*') ? 'bg-green-100 font-bold text-green-700' : '' }}"
                                 :class="open ? 'px-4 justify-start' : 'justify-center'"
                             >
                                 <span class="material-icons"
                                     :class="open ? 'mr-3' : ''"
-                                >person_add</span>
-                                <span x-show="open" class="transition-all duration-200">Registrar Paciente</span>
-                            </a>
+                                >people</span>
+                                <span x-show="open" class="transition-all duration-200">Paciente</span>
+                                <span class="material-icons ml-auto" x-show="open" x-text="pacienteOpen ? 'expand_less' : 'expand_more'"></span>
+                            </button>
+                            <ul x-show="pacienteOpen" x-transition class="pl-12" x-cloak>
+                                <li>
+                                    <a href="{{ route('paciente.create') }}"
+                                        class="flex items-center py-2 text-gray-700 hover:bg-green-50
+                                            {{ request()->routeIs('paciente.create') ? 'bg-green-100 font-bold text-green-700' : '' }}"
+                                    >
+                                        <span class="material-icons mr-2 text-base">person_add</span>
+                                        <span>Registrar Paciente</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('paciente.search') }}"
+                                        class="flex items-center py-2 text-gray-700 hover:bg-green-50
+                                            {{ request()->routeIs('paciente.search') ? 'bg-green-100 font-bold text-green-700' : '' }}"
+                                    >
+                                        <span class="material-icons mr-2 text-base">search</span>
+                                        <span>Buscar Paciente</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
+
                         <li>
-                            <a href="#"
-                                class="flex items-center py-3 text-gray-700 hover:bg-green-50
-                                    {{ request()->routeIs('recepcionista.pacientes.buscar') ? 'bg-green-100 font-bold text-green-700' : '' }}"
-                                :class="open ? 'px-4 justify-start' : 'justify-center'"
-                            >
-                                <span class="material-icons"
-                                    :class="open ? 'mr-3' : ''"
-                                >search</span>
-                                <span x-show="open" class="transition-all duration-200">Buscar Paciente</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
+                            <a 
                                 class="flex items-center py-3 text-gray-700 hover:bg-green-50
                                     {{ request()->routeIs('recepcionista.citas.index') ? 'bg-green-100 font-bold text-green-700' : '' }}"
                                 :class="open ? 'px-4 justify-start' : 'justify-center'"
@@ -147,6 +162,7 @@
                                 <span x-show="open" class="transition-all duration-200">Citas</span>
                             </a>
                         </li>
+                    </ul>
                     @elseif($role === 'doctor')
                         <li>
                             <a href="#"

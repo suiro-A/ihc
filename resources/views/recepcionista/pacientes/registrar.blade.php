@@ -7,7 +7,7 @@
     <div class="flex items-center gap-4 mb-6">
         {{-- Ruta para el boton de volver --}}
         {{-- {{ route('recepcionista.pacientes.buscar') }} --}}
-        <a href="{{ route('inicio') }}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+        <a href="{{ route('recepcionista.dashboard') }}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
@@ -104,23 +104,14 @@
                             <select name="alergias" id="alergias" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
                                 <option value="">Seleccionar</option>
-                                <option value="polen">Polen</option>
-                                <option value="polvo">Polvo</option>
-                                <option value="lácteos">Lácteos</option>
-                                <option value="mariscos">Mariscos</option>
-                                <option value="huevo">Huevo</option>
-                                <option value="maní">Maní</option>
-                                <option value="gluten">Gluten</option>
-                                <option value="animales">Caspa de animales</option>
-                                <option value="medicamentos">Medicamentos</option>
-                                <option value="picaduras">Picaduras de insectos</option>
+
+                                                                @foreach ($alergias as $alergia)
+                                    <option value="{{ $alergia->id_alergia }}">
+                                        {{ $alergia->descripcion }} 
+                                    </option>
+                                @endforeach
+
                             </select>
-                            {{-- <label for="alergias" class="block text-sm font-medium text-gray-700">Alergias</label> --}}
-
-
-                            {{-- <input type="text" name="alergias" id="alergias"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   placeholder="Medicamentos, alimentos, etc."> --}}
 
 
                         </div>
@@ -130,21 +121,18 @@
                             <select name="cronicas" id="cronicas" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
                                 <option value="">Seleccionar</option>
-                                <option value="diabetes">Diabetes</option>
-                                <option value="hipertension">Hipertensión</option>
-                                <option value="asma">Asma</option>
-                                <option value="artritis">Artritis</option>
-                                <option value="epoc">EPOC</option>
-                                <option value="cardiopatia">Cardiopatía</option>
-                                <option value="cancer">Cáncer</option>
-                                <option value="colesterol">Colesterol alto</option>
-                                <option value="tiroides">Problemas de tiroides</option>
-                                <option value="insuficiencia_renal">Insuficiencia renal</option>
+
+
+                                @foreach ($enfermedades as $enfermedad)
+                                    <option value="{{ $enfermedad->id_enfermedad }}">
+                                        {{ $enfermedad->descripcion }} 
+                                    </option>
+                                @endforeach
+
+                                
+
                             </select>
-                            {{-- <label for="enfermedades_cronicas" class="block text-sm font-medium text-gray-700">Enfermedades Crónicas</label>
-                            <input type="text" name="enfermedades_cronicas" id="enfermedades_cronicas"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   placeholder="Diabetes, hipertensión, etc."> --}}
+
                         </div>
                         <div>
 
@@ -152,21 +140,14 @@
                             <select name="medicacion" id="medicacion" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
                                 <option value="">Seleccionar</option>
-                                <option value="metformina">Metformina</option>
-                                <option value="enalapril">Enalapril</option>
-                                <option value="aspirina">Aspirina</option>
-                                <option value="simvastatina">Simvastatina</option>
-                                <option value="furosemida">Furosemida</option>
-                                <option value="ibuprofeno">Ibuprofeno</option>
-                                <option value="paracetamol">Paracetamol</option>
-                                <option value="levotiroxina">Levotiroxina</option>
-                                <option value="salbutamol">Salbutamol</option>
-                                <option value="omeprazol">Omeprazol</option>
+
+                                @foreach ($medicamentos as $medicamento)
+                                    <option value="{{ $medicamento->id_medicamento }}">
+                                        {{ $medicamento->nombre }} ({{ $medicamento->presentacion }})
+                                    </option>
+                                @endforeach
                             </select>
-                            {{-- <label for="medicacion_actual" class="block text-sm font-medium text-gray-700">Medicación Actual</label>
-                            <input type="text" name="medicacion_actual" id="medicacion_actual"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   placeholder="Medicamentos que toma actualmente"> --}}
+
                         </div>
                         <div>
                             <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones</label>
@@ -182,7 +163,7 @@
                     
                     {{-- Ruta para el boton de cancelar --}}
                     {{-- {{ route('recepcionista.pacientes.buscar') }} --}}
-                    <a href="{{ route('inicio') }}" 
+                    <a href="{{ route('recepcionista.dashboard') }}" 
                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest bg-white hover:bg-gray-50">
                         Cancelar
                     </a>

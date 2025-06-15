@@ -35,7 +35,8 @@ async function search (id)
                     <td class="px-6 py-4 whitespace-nowrap">${paciente.apellidos}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${paciente.dni}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${paciente.fecha_nac}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${paciente.sexo}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${paciente.sexo == 1 ? 'Masculino' : 'Femenino'}
+                        </td>
                     <td class="px-6 py-4 whitespace-nowrap">${paciente.telefono}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${paciente.correo}</td>
 

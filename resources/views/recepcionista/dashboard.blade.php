@@ -6,7 +6,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p class="text-gray-600">Bienvenida, {{ session('user_data')['name'] }}. Aquí está el resumen del día.</p>
+        <p class="text-gray-600">Bienvenida, . Aquí está el resumen del día.</p>
     </div>
 
     <!-- Estadísticas -->
@@ -15,8 +15,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Citas Hoy</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['citas_hoy'] }}</p>
-                    <p class="text-sm text-gray-500">{{ $stats['citas_confirmadas'] }} confirmadas</p>
+                    <p class="text-2xl font-bold text-gray-900">#</p>
+                    <p class="text-sm text-gray-500"># confirmadas</p>
                 </div>
                 <div class="text-green-600">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,14 +31,14 @@
                 <div>
                     <p class="text-sm font-medium text-gray-600">Próxima Cita</p>
                     <p class="text-2xl font-bold text-gray-900">
-                        {{ $stats['proxima_cita'] ? $stats['proxima_cita']['hora'] : 'N/A' }}
+                        {{-- {{ $stats['proxima_cita'] ? $stats['proxima_cita']['hora'] : 'N/A' }} --}}
                     </p>
                     <p class="text-sm text-gray-500">
-                        @if($stats['proxima_cita'])
+                        {{-- @if($stats['proxima_cita'])
                             {{ $stats['proxima_cita']['paciente']['nombre'] }} - {{ $stats['proxima_cita']['doctor']['name'] }}
                         @else
                             Sin citas
-                        @endif
+                        @endif --}}
                     </p>
                 </div>
                 <div class="text-green-600">
@@ -53,7 +53,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Pacientes Registrados</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['pacientes_registrados'] }}</p>
+                    <p class="text-2xl font-bold text-gray-900">#</p>
                     <p class="text-sm text-gray-500">Total en sistema</p>
                 </div>
                 <div class="text-green-600">
@@ -68,8 +68,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Citas Confirmadas</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['citas_confirmadas'] }}</p>
-                    <p class="text-sm text-gray-500">{{ $stats['citas_hoy'] > 0 ? round(($stats['citas_confirmadas'] / $stats['citas_hoy']) * 100) : 0 }}% del total</p>
+                    <p class="text-2xl font-bold text-gray-900">#</p>
+                    {{-- <p class="text-sm text-gray-500">{{ $stats['citas_hoy'] > 0 ? round(($stats['citas_confirmadas'] / $stats['citas_hoy']) * 100) : 0 }}% del total</p> --}}
                 </div>
                 <div class="text-green-600">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +87,7 @@
             <p class="text-gray-600 text-sm mb-4">Citas programadas para hoy</p>
             
             <div class="space-y-4">
-                @forelse($citasHoy->take(5) as $cita)
+                {{-- @forelse($citasHoy->take(5) as $cita)
                     <div class="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
                         <div>
                             <p class="font-medium">{{ $cita['paciente']['nombre'] }} {{ $cita['paciente']['apellidos'] }}</p>
@@ -102,7 +102,7 @@
                     </div>
                 @empty
                     <p class="text-gray-500 text-center py-4">No hay citas programadas para hoy</p>
-                @endforelse
+                @endforelse --}}
             </div>
         </div>
 
@@ -111,21 +111,21 @@
             <p class="text-gray-600 text-sm mb-4">Funciones frecuentes</p>
             
             <div class="space-y-2">
-                <a href="{{ route('recepcionista.pacientes.registrar') }}" 
+                <a href="#" 
                    class="flex items-center w-full px-4 py-2 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
                     <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                     </svg>
                     Registrar nuevo paciente
                 </a>
-                <a href="{{ route('recepcionista.citas.agendar') }}" 
+                <a href="#" 
                    class="flex items-center w-full px-4 py-2 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
                     <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                     </svg>
                     Agendar nueva cita
                 </a>
-                <a href="{{ route('recepcionista.pacientes.buscar') }}" 
+                <a href="#" 
                    class="flex items-center w-full px-4 py-2 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
                     <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>

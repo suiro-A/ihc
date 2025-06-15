@@ -2,13 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Medicamentos;
 use App\Models\Paciente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PacienteController extends Controller
 {   
     public function index(){
         return view('registrarPaciente');
+    }
+
+    public function create()  {
+
+        $medicamentos = Medicamentos::all(); //Usando modelo
+        $alergias = DB::table('alergia')->get(); // Sin usar un modelo
+        $enfermedades = DB::table('enfermedad_cronica')->get();
+
+        return view('recepcionista.pacientes.registrar', compact('medicamentos', 'alergias', 'enfermedades'));
+
+        
     }
 
     public function registrar(Request $datos){
@@ -41,12 +54,9 @@ class PacienteController extends Controller
         
         session()->flash('pacienteCreate',[
 
-         
             'title' => "¡Bien hecho!",
             'text' => "Paciente creado correctamente",
             'icon' => "success"
-
-
         ]);
         // return 'Registrar pacientes';
         // Redirigir o responder

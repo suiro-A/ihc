@@ -4,14 +4,13 @@ use App\Http\Controllers\PacienteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return 'INICIO';
-})->name('inicio');
+    return view('recepcionista.dashboard');
+})->name('recepcionista.dashboard');
 
 // Formularios
 Route::get('/registrar',[PacienteController::class,'index'])->name('registrarIndex');
 
-Route::get('/paciente/create', function () {
-    return view('recepcionista.pacientes.registrar');})->name('paciente.create');
+Route::get('/paciente/create',[PacienteController::class, 'create'])->name('paciente.create');
 
 // Se guarda en la BD
 Route::post('/paciente',[PacienteController::class,'registrar'])->name('paciente.registrar');
