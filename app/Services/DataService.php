@@ -225,7 +225,7 @@ class DataService
             [
                 'id' => 1,
                 'paciente_id' => 1,
-                'cita_id' => 6,
+                'cita_id' => 1,
                 'doctor_id' => 1,
                 'diagnostico' => 'Hipertensión arterial controlada',
                 'indicaciones' => 'Continuar con medicación actual. Dieta baja en sodio y ejercicio regular.',
@@ -237,12 +237,12 @@ class DataService
                         'duracion' => '30 días'
                     ]
                 ],
-                'fecha_consulta' => Carbon::yesterday()->format('Y-m-d H:i:s'),
+                'fecha_consulta' => Carbon::today()->format('Y-m-d H:i:s'),
             ],
             [
                 'id' => 2,
                 'paciente_id' => 1,
-                'cita_id' => null,
+                'cita_id' => 2,
                 'doctor_id' => 1,
                 'diagnostico' => 'Cefalea tensional',
                 'indicaciones' => 'Reducir estrés, descanso adecuado y relajación.',
