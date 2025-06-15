@@ -10,16 +10,8 @@ class HistorialClinico extends Model
     use HasFactory;
 
     protected $table = 'historial_clinico';
-
-    protected $fillable = [
-        'paciente_id',
-        'cita_id',
-        'doctor_id',
-        'diagnostico',
-        'indicaciones',
-        'receta_medica',
-        'fecha_consulta',
-    ];
+    protected $primaryKey = 'id_historial';
+    protected $fillable = ['id_paciente'];
 
     protected function casts(): array
     {

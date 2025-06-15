@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Models\Paciente;
+use App\Models\HistorialClinico;
+use App\Models\Alergia;
+use App\Models\EnfermedadCronica;
+use App\Models\Medicamento;
 
 class RecepcionistaController extends Controller
 {
@@ -40,36 +45,68 @@ class RecepcionistaController extends Controller
 
     public function registrarPaciente()
     {
-        return view('recepcionista.pacientes.registrar');
+        $alergias = \App\Models\Alergia::all();
+        $cronicas = \App\Models\EnfermedadCronica::all();
+        $medicamentos = \App\Models\Medicamento::all();
+        return view('recepcionista.pacientes.registrar', compact('alergias', 'cronicas', 'medicamentos'));
     }
 
     public function guardarPaciente(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'apellidos' => 'required|string|max:255',
-            'dni' => 'required|string',
+            'nombres' => 'required|string|max:40',
+            'apellidos' => 'required|string|max:40',
+            'dni' => 'required|string|max:40|unique:paciente,dni',
             'fecha_nacimiento' => 'required|date',
-            'genero' => 'required|in:masculino,femenino,otro',
-            'telefono' => 'required|string',
-            'email' => 'nullable|email',
-            'alergias' => 'nullable|string',
-            'enfermedades_cronicas' => 'nullable|string',
-            'medicacion_actual' => 'nullable|string',
-            'observaciones' => 'nullable|string',
+            'genero' => 'required|in:masculino,femenino',
+            'telefono' => 'required|string|max:40',
+            'email' => 'nullable|email|max:40',
+            'alergia' => 'required|exists:alergia,id_alergia',
+            'cronica' => 'required|exists:enfermedad_cronica,id_enfermedad',
+            'medicamento' => 'required|exists:medicamento,id_medicamento',
         ]);
 
-        // Verificar DNI único
-        $pacientes = collect(DataService::getPacientes());
-        if ($pacientes->where('dni', $request->dni)->isNotEmpty()) {
-            return back()->withErrors(['dni' => 'El DNI ya está registrado.']);
-        }
+        $paciente = Paciente::create([
+            'nombres' => $request->nombres,
+            'apellidos' => $request->apellidos,
+            'dni' => $request->dni,
+            'fecha_nac' => $request->fecha_nacimiento,
+            'sexo' => $request->genero === 'masculino' ? 1 : 0,
+            'telefono' => $request->telefono,
+            'correo' => $request->email,
+        ]);
 
-        // En un sistema real, aquí guardaríamos en la base de datos
-        // Por ahora solo simulamos el éxito
-        
+        // Crear historial clínico
+        $historial = HistorialClinico::create([
+            'id_paciente' => $paciente->id_paciente,
+        ]);
+
+        // Guardar alergia seleccionada
+        \DB::table('historial_alergia')->insert([
+            'id_historial' => $historial->id_historial,
+            'id_alergia' => $request->alergia,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Guardar enfermedad crónica seleccionada
+        \DB::table('historial_enfermedad')->insert([
+            'id_historial' => $historial->id_historial,
+            'id_enfermedad' => $request->cronica,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Guardar medicamento seleccionado
+        \DB::table('medicacion_actual')->insert([
+            'id_historial' => $historial->id_historial,
+            'id_medicamento' => $request->medicamento,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         return redirect()->route('recepcionista.citas.agendar')
-                        ->with('success', 'Paciente registrado exitosamente.');
+            ->with('success', 'Paciente registrado exitosamente.');
     }
 
     public function buscarPacientes(Request $request)
@@ -79,8 +116,8 @@ class RecepcionistaController extends Controller
 
         if ($query) {
             $pacientes = $pacientes->filter(function ($paciente) use ($query) {
-                $nombreCompleto = strtolower($paciente['nombre'] . ' ' . $paciente['apellidos']);
-                return str_contains(strtolower($paciente['nombre']), strtolower($query))
+                $nombreCompleto = strtolower($paciente['nombres'] . ' ' . $paciente['apellidos']);
+                return str_contains(strtolower($paciente['nombres']), strtolower($query))
                     || str_contains(strtolower($paciente['apellidos']), strtolower($query))
                     || str_contains(strtolower($nombreCompleto), strtolower($query))
                     || str_contains(strtolower($paciente['dni']), strtolower($query));

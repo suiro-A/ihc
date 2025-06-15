@@ -94,56 +94,36 @@
                     <p class="text-gray-600 mb-4">Datos médicos relevantes</p>
                     <div class="space-y-4">
                         <div>
-                            <label for="alergias" class="block text-sm font-medium text-gray-700">Alergias</label>
-                            <select name="alergias" id="alergias" required
+                            <label for="alergia" class="block text-sm font-medium text-gray-700">Alergia</label>
+                            <select name="alergia" id="alergia" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
-                                <option value="">Seleccionar</option>
-                                <option value="polen">Polen</option>
-                                <option value="polvo">Polvo</option>
-                                <option value="lácteos">Lácteos</option>
-                                <option value="mariscos">Mariscos</option>
-                                <option value="huevo">Huevo</option>
-                                <option value="maní">Maní</option>
-                                <option value="gluten">Gluten</option>
-                                <option value="animales">Caspa de animales</option>
-                                <option value="medicamentos">Medicamentos</option>
-                                <option value="picaduras">Picaduras de insectos</option>
+                                <option value="">Seleccionar alergia...</option>
+                                @foreach($alergias as $alergia)
+                                    <option value="{{ $alergia->id_alergia }}">{{ $alergia->descripcion }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div>
-                            <label for="cronicas" class="block text-sm font-medium text-gray-700">Enfermedades Crónicas</label>
-                            <select name="cronicas" id="cronicas" required
+                            <label for="cronica" class="block text-sm font-medium text-gray-700">Enfermedad Crónica</label>
+                            <select name="cronica" id="cronica" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
-                                <option value="">Seleccionar</option>
-                                <option value="diabetes">Diabetes</option>
-                                <option value="hipertension">Hipertensión</option>
-                                <option value="asma">Asma</option>
-                                <option value="artritis">Artritis</option>
-                                <option value="epoc">EPOC</option>
-                                <option value="cardiopatia">Cardiopatía</option>
-                                <option value="cancer">Cáncer</option>
-                                <option value="colesterol">Colesterol alto</option>
-                                <option value="tiroides">Problemas de tiroides</option>
-                                <option value="insuficiencia_renal">Insuficiencia renal</option>
-                            </select>
+                                <option value="">Seleccionar enfermedad crónica...</option>
+                                @foreach($cronicas as $cronica)
+                                    <option value="{{ $cronica->id_enfermedad }}">{{ $cronica->descripcion }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div>
-                            <label for="medicacion" class="block text-sm font-medium text-gray-700">Medicación Actual</label>
-                            <select name="medicacion" id="medicacion" required
+                            <label for="medicamento" class="block text-sm font-medium text-gray-700">Medicamento</label>
+                            <select name="medicamento" id="medicamento" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
-                                <option value="">Seleccionar</option>
-                                <option value="metformina">Metformina</option>
-                                <option value="enalapril">Enalapril</option>
-                                <option value="aspirina">Aspirina</option>
-                                <option value="simvastatina">Simvastatina</option>
-                                <option value="furosemida">Furosemida</option>
-                                <option value="ibuprofeno">Ibuprofeno</option>
-                                <option value="paracetamol">Paracetamol</option>
-                                <option value="levotiroxina">Levotiroxina</option>
-                                <option value="salbutamol">Salbutamol</option>
-                                <option value="omeprazol">Omeprazol</option>
-                            </select>
+                                <option value="">Seleccionar medicamento...</option>
+                                @foreach($medicamentos as $medicamento)
+                                    <option value="{{ $medicamento->id_medicamento }}">{{ $medicamento->nombre }}</option>
+                                @endforeach
+                            </select>
                         </div>
+
                         <div>
                             <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones</label>
                             <textarea name="observaciones" id="observaciones" rows="4"

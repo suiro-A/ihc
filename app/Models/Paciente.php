@@ -9,25 +9,29 @@ class Paciente extends Model
 {
     use HasFactory;
 
+    protected $table = 'paciente';
+    protected $primaryKey = 'id_paciente';
+
     protected $fillable = [
-        'nombre',
+        'nombres',
         'apellidos',
         'dni',
-        'fecha_nacimiento',
-        'genero',
+        'fecha_nac',
+        'sexo',
         'telefono',
-        'email',
-        'direccion',
-        'alergias',
-        'enfermedades_cronicas',
-        'medicacion_actual',
-        'observaciones',
+        'correo',
+    ];
+
+    protected $casts = [
+        'fecha_nac' => 'date',
+        'sexo' => 'boolean',
     ];
 
     protected function casts(): array
     {
         return [
-            'fecha_nacimiento' => 'date',
+            'fecha_nac' => 'date',
+            'sexo' => 'boolean',
         ];
     }
 
