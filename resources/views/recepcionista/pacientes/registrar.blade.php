@@ -101,11 +101,11 @@
                         <div>
 
                             <label for="alergias" class="block text-sm font-medium text-gray-700">Alergias</label>
-                            <select name="alergias" id="alergias" required
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                            <select name="alergias[]" id="alergias"  multiple
+                                class="mi-select mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
                                 <option value="">Seleccionar</option>
 
-                                                                @foreach ($alergias as $alergia)
+                                @foreach ($alergias as $alergia)
                                     <option value="{{ $alergia->id_alergia }}">
                                         {{ $alergia->descripcion }} 
                                     </option>
@@ -117,28 +117,25 @@
                         </div>
                         <div>
 
-                            <label for="cronicas" class="block text-sm font-medium text-gray-700">Enfermedades Crónicas</label>
-                            <select name="cronicas" id="cronicas" required
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
-                                <option value="">Seleccionar</option>
+
+                                    <label for="cronicas" class="block text-sm font-medium text-gray-700">Enfermedades Crónicas</label>
+                                    <select name="cronicas[]" id="cronicas" class="mi-select form-control  border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" multiple  style="width: 100%">
+                                        @foreach ($enfermedades as $enfermedad)
+                                            <option value="{{ $enfermedad->id_enfermedad }}">
+                                                {{ $enfermedad->descripcion }} 
+                                            </option>
+                                        @endforeach
+                                    </select>
 
 
-                                @foreach ($enfermedades as $enfermedad)
-                                    <option value="{{ $enfermedad->id_enfermedad }}">
-                                        {{ $enfermedad->descripcion }} 
-                                    </option>
-                                @endforeach
 
-                                
-
-                            </select>
 
                         </div>
                         <div>
 
                             <label for="medicacion" class="block text-sm font-medium text-gray-700">Medicación Actual</label>
-                            <select name="medicacion" id="medicacion" required
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                            <select name="medicacion[]" id="medicacion"  multiple
+                                class="mi-select mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
                                 <option value="">Seleccionar</option>
 
                                 @foreach ($medicamentos as $medicamento)
@@ -153,7 +150,7 @@
                             <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones</label>
                             <textarea name="observaciones" id="observaciones" rows="4"
                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                      placeholder="Información adicional relevante"></textarea>
+                                      placeholder=" Información adicional relevante"></textarea>
                         </div>
                     </div>
                 </div>

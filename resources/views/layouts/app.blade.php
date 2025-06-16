@@ -17,6 +17,8 @@
 
     {{-- Alertas --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- En el <head> -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     
     @vite(['resources/js/app.js']) {{-- JS global --}}
     @yield('scripts')              {{-- Scripts específicos de la vista --}}
@@ -246,19 +248,35 @@
 
 
     
-        @if (session('pacienteCreate'))
 
-        <script>
-            Swal.fire(@json(session('pacienteCreate')));
-        </script>
 
-    @endif
-    @if (session('swal'))
 
-        <script>
-            Swal.fire(@json(session('swal')));
-        </script>
+    <!-- Antes de cerrar </body> -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    @endif
+{{-- <script>
+    $(document).ready(function() {
+        $('#opciones').select2({
+            placeholder: "Selecciona una o más opciones",
+            allowClear: true,
+                language: {
+                noResults: function() {
+                    return "No hay coincidencias, intenta otra palabra";
+                }
+            }  
+            
+        });
+    });
+</script> --}}
+@if (session('swal'))
+    <script>
+        Swal.fire(@json(session('swal')));
+    </script>
+@elseif (session('pacienteCreate'))
+    <script>
+        Swal.fire(@json(session('pacienteCreate')));
+    </script>
+@endif
 </body>
 </html>

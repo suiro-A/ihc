@@ -1,6 +1,19 @@
 console.log("si carga todo ");
 const buscar = document.getElementById('buscar');
 
+
+    $(document).ready(function() {
+    $('.mi-select').select2({
+        placeholder: "Selecciona una o más opciones",
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "No se encontraron resultados";
+            }
+        }
+    });
+});
+
 async function search (id)
 {
         const tbody = document.getElementById('pacientes-body');

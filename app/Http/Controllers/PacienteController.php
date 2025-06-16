@@ -35,8 +35,29 @@ class PacienteController extends Controller
         'sexo' => 'required|in:0,1',
         'telefono' => 'required|digits_between:7,9',
         'correo' => 'required|email|unique:paciente,correo',
+        'cronicas' => 'nullable|array',
+        'cronicas.*' => 'integer|exists:enfermedad_cronica,id_enfermedad',
+
+        'medicacion' => 'nullable|array',
+        'medicacion.*' => 'integer|exists:medicamento,id_medicamento',
+
+        'alergias' => 'nullable|array',
+        'alergias.*' => 'integer|exists:alergia,id_alergia',
+
         ]);
-        
+        session()->flash('pacienteCreate',[
+
+            'title' => "¡Bien hecho!",
+            'text' => "Paciente creado correctamente",
+            'icon' => "success"
+        ]);
+        // return $datos;
+
+        // Si 'medicacion' viene en la petición, úsalo; si no, usa array vacío
+        $medicamentos = $datos->input('medicacion', []);
+        $enfermedades = $datos->input('cronicas', []);  
+        $alergias = $datos->input('alergias', []);  
+
         // Paciente::create($datos->all());
 
         $paciente = new Paciente();
@@ -51,16 +72,32 @@ class PacienteController extends Controller
 
         $paciente->save();
 
-        
-        session()->flash('pacienteCreate',[
+        // ! aca ira la creación en  historial
+        $historial =$paciente->historial()->create([]);
 
-            'title' => "¡Bien hecho!",
-            'text' => "Paciente creado correctamente",
-            'icon' => "success"
-        ]);
-        // return 'Registrar pacientes';
-        // Redirigir o responder
+        // No es necesario obtener solo el ID
+        // $historialId = $historial->id_historial;
+
+
+        // Llenado de las tablas intermedias de medicamentos, alergias y enfermedades
+        if (!empty($medicamentos)) {
+            // hay medicamentos seleccionados
+            $historial->medicamentos()->attach($medicamentos);
+        }
+        if (!empty($alergias)) {
+            // hay alergias seleccionadas
+            $historial->alergias()->attach($alergias);
+        }
+        if (!empty($enfermedades)) {
+            // hay enfermedades seleccionadas
+            $historial->enfermedades()->attach($enfermedades);
+        }
+        
+
+
         return redirect()->route('paciente.search')->with('success', 'Usuario creado correctamente.');
+
+        
     }
 
 
