@@ -22,17 +22,17 @@ class AdminController extends Controller
   public function dashboard()
   {
     $stats = [
-      'total_usuarios' => count(DataService::getUsers()),
-      'doctores' => DataService::getUsersByRole('doctor')->count(),
-      'roles' => count(DataService::getRoles()),
+      'total_usuarios' => Usuario::count(),
+      'doctores' => Usuario::where('rol', Usuario::ROL_DOCTOR)->where('estado', true)->count(),
+      'roles' => Rol::count(),
       'horarios_configurados' => collect(DataService::getDisponibilidad())
         ->where('fecha', '>=', Carbon::today()->format('Y-m-d'))
         ->count(),
     ];
 
-    $usuariosRecientes = collect(DataService::getUsers())
-      ->sortByDesc('created_at')
-      ->take(5);
+    $usuariosRecientes = Usuario::orderByDesc('created_at')
+      ->take(5)
+      ->get();
 
     return view('admin.dashboard', compact('stats', 'usuariosRecientes'));
   }
