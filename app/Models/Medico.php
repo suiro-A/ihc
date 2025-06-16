@@ -8,6 +8,8 @@ class Medico extends Model
 {
   protected $table = 'medico';
   // protected $primaryKey = 'id_usuario';
+  protected $primaryKey = 'id_usuario';
+  public $incrementing = false;
   protected $fillable = ['id_usuario','especialidad', 'num_colegiatura'];
   public $timestamps = false;
 }

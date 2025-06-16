@@ -47,4 +47,9 @@ class Usuario extends Model
   {
     return $this->belongsTo(Rol::class, 'rol', 'id_rol');
   }
+
+  public function medico()
+  {
+    return $this->hasOne(Medico::class, 'id_usuario', 'id_usuario');
+  }
 }

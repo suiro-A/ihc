@@ -50,7 +50,7 @@ class AdminController extends Controller
       });
     }
 
-    $usuarios = $query->get();
+    $usuarios = $query->orderBy('nombres')->get();
 
     return view('admin.usuarios.index', compact('usuarios'));
   }
@@ -85,8 +85,6 @@ class AdminController extends Controller
     $usuario->estado = true;
     
     $usuario->save();
-    // dd($usuario->id_usuario);
-
 
     // Guardar información profesional si es doctor
     if ($usuario->isDoctor()) {
@@ -108,34 +106,59 @@ class AdminController extends Controller
 
   public function editarUsuario($id)
   {
-    $usuario = DataService::findUser($id);
+    $usuario = Usuario::with('medico')->findOrFail($id);
+    $especialidades = Especialidad::all();
 
     if (!$usuario) {
       abort(404, 'Usuario no encontrado');
     }
 
-    $roles = DataService::getRoles();
-    return view('admin.usuarios.editar', compact('usuario', 'roles'));
+    $roles = Rol::all();
+    return view('admin.usuarios.editar', compact('usuario', 'roles', 'especialidades'));
   }
 
   public function actualizarUsuario(Request $request, $id)
   {
-    $usuario = DataService::findUser($id);
+    $usuario = Usuario::findOrFail($id);
 
     if (!$usuario) {
       abort(404, 'Usuario no encontrado');
     }
 
     $request->validate([
-      'name' => 'required|string|max:255',
-      'email' => 'required|string|email|max:255',
-      'telefono' => 'nullable|string',
-      'especialidad' => 'nullable|string',
+      'nombres' => 'required|string|max:255',
+      'apellidos' => 'required|string|max:255',
+      'telefono' => 'nullable|string|max:20',
+      'email' => 'required|email|unique:usuario,correo,' . $usuario->id_usuario . ',id_usuario',
       'role' => 'required',
-      'password' => 'nullable|string|min:8|confirmed',
+      'especialidad' => 'nullable|string',
+      'colegiatura' => 'nullable|string|max:10',
     ]);
 
-    // En un sistema real, aquí actualizaríamos en la base de datos
+    $usuario->nombres = $request->input('nombres');
+    $usuario->apellidos = $request->input('apellidos');
+    $usuario->telefono = $request->input('telefono');
+    $usuario->correo = $request->input('email');
+    $usuario->rol = $request->input('role');
+
+    $usuario->save();
+
+    // Si el usuario es doctor, guardar o actualizar su info profesional
+    if ($usuario->isDoctor()) {
+      // Crear o actualizar registro de médico
+      $medico = Medico::updateOrCreate(
+        ['id_usuario' => $usuario->id_usuario],
+        [
+          'especialidad' => $request->input('especialidad'),
+          'num_colegiatura' => $request->input('colegiatura'),
+        ]
+      );
+    } else {
+      // Eliminar si ya no es doctor
+      if ($usuario->medico) {
+        $usuario->medico->delete();
+      }
+    }
 
     return redirect()->route('admin.usuarios.index')
       ->with('success', 'Usuario actualizado exitosamente.');
