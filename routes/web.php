@@ -53,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
         // Usuarios
         Route::get('/usuarios', [AdminController::class, 'gestionUsuarios'])->name('usuarios.index');
         Route::get('/usuarios/crear', [AdminController::class, 'crearUsuario'])->name('usuarios.crear');
-        Route::post('/usuarios', [AdminController::class, 'guardarUsuario'])->name('usuarios.guardar');
+        Route::post('/usuarios/guardar', [AdminController::class, 'guardarUsuario'])->name('usuarios.guardar');
         Route::get('/usuarios/{id}/editar', [AdminController::class, 'editarUsuario'])->name('usuarios.editar');
         Route::put('/usuarios/{id}', [AdminController::class, 'actualizarUsuario'])->name('usuarios.actualizar');
         Route::patch('/usuarios/{id}/toggle', [AdminController::class, 'toggleUsuario'])->name('usuarios.toggle');

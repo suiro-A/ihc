@@ -82,12 +82,12 @@
                 @forelse($usuariosRecientes as $usuario)
                     <div class="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
                         <div>
-                            <p class="font-medium">{{ $usuario['name'] }}</p>
-                            <p class="text-sm text-gray-500 capitalize">{{ $usuario['role'] }}</p>
+                            <p class="font-medium">{{ $usuario->nombres }} {{ $usuario->apellidos }}</p>
+                            <p class="text-sm text-gray-500 capitalize">{{ $usuario->rolNombre->rol ?? 'Rol desconocido' }}</p>
                         </div>
                         <div class="flex items-center gap-4">
                             <span class="text-sm font-medium">{{ \Carbon\Carbon::parse($usuario['created_at'])->format('d/m/Y') }}</span>
-                            <a href="{{ route('admin.usuarios.editar', $usuario['id']) }}" 
+                            <a href="{{ route('admin.usuarios.editar', $usuario->id_usuario) }}" 
                                class="text-green-600 hover:text-green-800">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

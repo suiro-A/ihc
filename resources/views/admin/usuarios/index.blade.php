@@ -11,9 +11,7 @@
         </div>
         <a href="{{ route('admin.usuarios.crear') }}" 
            class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
+           <img src="{{ asset('icons/usuario_agregar.png') }}" alt="Crear" class="w-10 h-10 mr-2">
             Crear Usuario
         </a>
     </div>
@@ -54,38 +52,36 @@
                         @forelse($usuarios as $usuario)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $usuario['name'] }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $usuario->nombres }} {{ $usuario->apellidos }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $usuario['email'] }}</div>
+                                    <div class="text-sm text-gray-900">{{ $usuario->correo }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900 capitalize">{{ $usuario['rol_display'] ?? $usuario['role'] }}</div>
+                                    <div class="text-sm text-gray-900 capitalize">{{ $usuario->rolNombre->rol ?? 'Desconocido' }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ \Carbon\Carbon::parse($usuario['created_at'])->format('d/m/Y') }}</div>
+                                    <div class="text-sm text-gray-900">{{ \Carbon\Carbon::parse($usuario->created_at)->format('d/m/Y') }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-3 py-1 text-xs rounded-full font-semibold
-                                        {{ $usuario['is_active'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500' }}">
-                                        {{ $usuario['is_active'] ? 'Activo' : 'Inactivo' }}
+                                        {{ $usuario->estado ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500' }}">
+                                        {{ $usuario->estado ? 'Activo' : 'Inactivo' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                     <div class="flex items-center justify-center gap-2">
-                                        <a href="{{ route('admin.usuarios.editar', $usuario['id']) }}" 
+                                        <a href="{{ route('admin.usuarios.editar', $usuario->id_usuario) }}" 
                                            class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded hover:bg-yellow-200" title="Editar">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                            </svg>
+                                           <img src="{{ asset('icons/usuario_editar.png') }}" alt="Crear" class="w-9 h-9">
                                         </a>
-                                        <form action="{{ route('admin.usuarios.toggle', $usuario['id']) }}" method="POST" class="inline">
+                                        <form action="{{ route('admin.usuarios.toggle', $usuario->id_usuario) }}" method="POST" class="inline">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" 
-                                                    class="inline-flex items-center px-2 py-1 {{ $usuario['is_active'] ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} text-xs rounded"
-                                                    title="{{ $usuario['is_active'] ? 'Desactivar' : 'Activar' }}">
-                                                @if($usuario['is_active'])
+                                                    class="inline-flex items-center px-2 py-1 {{ $usuario->estado ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} text-xs rounded"
+                                                    title="{{ $usuario->estado ? 'Desactivar' : 'Activar' }}">
+                                                @if($usuario->estado)
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636"></path>
                                                     </svg>
