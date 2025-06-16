@@ -100,10 +100,10 @@
                     <h3 class="text-lg font-semibold mb-2">Información Médica</h3>
                     <p class="text-gray-600 mb-4">Datos médicos relevantes</p>
                     <div class="space-y-4">
-                        {{-- Solo lectura de Alergias --}}
+                        {{-- Alergias (editable) --}}
                         <div>
                             <label for="alergias" class="block text-sm font-medium text-gray-700">Alergias</label>
-                            <select name="alergias[]" id="alergias" class="mi-select" multiple disabled style="width: 100%">
+                            <select name="alergias[]" id="alergias" class="mi-select" multiple style="width: 100%">
                                 @foreach($alergias as $alergia)
                                     <option value="{{ $alergia->id_alergia }}"
                                         {{ in_array($alergia->id_alergia, $alergiasSeleccionadas ?? []) ? 'selected' : '' }}>
@@ -113,10 +113,10 @@
                             </select>
                         </div>
 
-                        {{-- Solo lectura de Enfermedades Crónicas --}}
+                        {{-- Enfermedades Crónicas (editable) --}}
                         <div>
                             <label for="cronicas" class="block text-sm font-medium text-gray-700">Enfermedades Crónicas</label>
-                            <select name="cronicas[]" id="cronicas" class="mi-select" multiple disabled style="width: 100%">
+                            <select name="cronicas[]" id="cronicas" class="mi-select" multiple style="width: 100%">
                                 @foreach($cronicas as $cronica)
                                     <option value="{{ $cronica->id_enfermedad }}"
                                         {{ in_array($cronica->id_enfermedad, $cronicasSeleccionadas ?? []) ? 'selected' : '' }}>
@@ -126,10 +126,10 @@
                             </select>
                         </div>
 
-                        {{-- Solo lectura de Medicamentos --}}
+                        {{-- Medicamentos (editable) --}}
                         <div>
                             <label for="medicamentos" class="block text-sm font-medium text-gray-700">Medicamentos</label>
-                            <select name="medicamentos[]" id="medicamentos" class="mi-select" multiple disabled style="width: 100%">
+                            <select name="medicamentos[]" id="medicamentos" class="mi-select" multiple style="width: 100%">
                                 @foreach($medicamentos as $medicamento)
                                     <option value="{{ $medicamento->id_medicamento }}"
                                         {{ in_array($medicamento->id_medicamento, $medicamentosSeleccionados ?? []) ? 'selected' : '' }}>
