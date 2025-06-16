@@ -166,14 +166,17 @@ class AdminController extends Controller
 
   public function toggleUsuario($id)
   {
-    $usuario = DataService::findUser($id);
+    $usuario = Usuario::findOrFail($id);
 
     if (!$usuario) {
       abort(404, 'Usuario no encontrado');
     }
 
-    // En un sistema real, aquí cambiaríamos el estado en la base de datos
-    $estado = !$usuario['is_active'] ? 'activado' : 'desactivado';
+    $usuario->estado = !$usuario->estado;
+
+    $usuario->save();
+
+    $estado = !$usuario->estado ? 'desactivado' : 'activado';
 
     return back()->with('success', "Usuario {$estado} exitosamente.");
   }
