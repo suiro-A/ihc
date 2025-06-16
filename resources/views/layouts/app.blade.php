@@ -16,6 +16,7 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-100 font-sans antialiased min-h-screen" x-data="{ open: true }">
     <!-- Sidebar fijo -->
@@ -253,6 +254,16 @@
         });
     });
     </script>
+
+@if (session('swal'))
+    <script>
+        Swal.fire(@json(session('swal')));
+    </script>
+@elseif (session('pacienteCreate'))
+    <script>
+        Swal.fire(@json(session('pacienteCreate')));
+    </script>
+@endif
 </body>
 
 </html>

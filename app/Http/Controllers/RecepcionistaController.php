@@ -79,6 +79,12 @@ public function guardarPaciente(Request $request)
         'correo' => $request->email,
     ]);
 
+    session()->flash('pacienteCreate', [
+        'title' => "¡Bien hecho!",
+        'text' => "Paciente creado correctamente",
+        'icon' => "success"
+    ]);
+
     // Crear historial clínico
     $historial = HistorialClinico::create([
         'id_paciente' => $paciente->id_paciente,
@@ -124,28 +130,30 @@ public function guardarPaciente(Request $request)
         ->with('success', 'Paciente registrado exitosamente.');
 }
 
-    public function buscarPacientes(Request $request)
-    {
-    $query = $request->input('buscar');
+public function buscarPacientes(Request $request)
+{
+    // Obtener todos los pacientes sin paginación
+    $allPacientes = Paciente::orderBy('apellidos')->get();
+    
+    // Calcular edad y última cita para cada paciente
+    $allPacientes->each(function ($paciente) {
+        $paciente->edad = $paciente->fecha_nac ? \Carbon\Carbon::parse($paciente->fecha_nac)->age : null;
+        $paciente->ultima_cita = '####'; // Cambia esto si tienes la relación
+    });
 
-    // Búsqueda por nombre, apellidos o DNI
-    $pacientes = Paciente::query()
-        ->when($query, function ($q) use ($query) {
-            $q->where('nombres', 'like', "%{$query}%")
-              ->orWhere('apellidos', 'like', "%{$query}%")
-              ->orWhere('dni', 'like', "%{$query}%");
-        })
-        ->orderBy('apellidos')
-        ->simplePaginate(5);
+    // Simular paginación manual (5 por página)
+    $perPage = 5;
+    $currentPage = LengthAwarePaginator::resolveCurrentPage() ?: 1;
+    $pacientes = new LengthAwarePaginator(
+        $allPacientes->forPage($currentPage, $perPage),
+        $allPacientes->count(),
+        $perPage,
+        $currentPage,
+        ['path' => LengthAwarePaginator::resolveCurrentPath()]
+    );
 
-    // Puedes calcular edad y última cita si tienes esas relaciones
-        $pacientes->each(function ($paciente) {
-            $paciente->edad = $paciente->fecha_nac ? \Carbon\Carbon::parse($paciente->fecha_nac)->age : null;
-            $paciente->ultima_cita = '####'; // Cambia esto si tienes la relación
-        });
-
-    return view('recepcionista.pacientes.buscar', compact('pacientes'));
-    }
+    return view('recepcionista.pacientes.buscar', compact('pacientes', 'allPacientes'));
+}
 
     public function editarPaciente($id)
     {
@@ -181,6 +189,7 @@ public function guardarPaciente(Request $request)
                 ->toArray();
         }
 
+
         return view('recepcionista.pacientes.editar', compact(
             'paciente',
             'alergias',
@@ -204,6 +213,12 @@ public function guardarPaciente(Request $request)
             'genero' => 'required|in:masculino,femenino',
             'telefono' => 'required|string|max:40',
             'email' => 'nullable|email|max:40',
+            'alergias' => 'array',
+            'alergias.*' => 'exists:alergia,id_alergia',
+            'cronicas' => 'array',
+            'cronicas.*' => 'exists:enfermedad_cronica,id_enfermedad',
+            'medicamentos' => 'array',
+            'medicamentos.*' => 'exists:medicamento,id_medicamento',
         ]);
 
         $paciente->update([
@@ -214,8 +229,56 @@ public function guardarPaciente(Request $request)
             'sexo' => $request->genero === 'masculino' ? 1 : 0,
             'telefono' => $request->telefono,
             'correo' => $request->email,
+            'observaciones' => $request->observaciones,
         ]);
 
+        // Actualizar historial clínico y relaciones
+        $historial = \App\Models\HistorialClinico::where('id_paciente', $paciente->id_paciente)->first();
+
+        if ($historial) {
+            // Alergias
+            \DB::table('historial_alergia')->where('id_historial', $historial->id_historial)->delete();
+            if ($request->has('alergias')) {
+                foreach ($request->alergias as $id_alergia) {
+                    \DB::table('historial_alergia')->insert([
+                        'id_historial' => $historial->id_historial,
+                        'id_alergia' => $id_alergia,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+            // Enfermedades crónicas
+            \DB::table('historial_enfermedad')->where('id_historial', $historial->id_historial)->delete();
+            if ($request->has('cronicas')) {
+                foreach ($request->cronicas as $id_enfermedad) {
+                    \DB::table('historial_enfermedad')->insert([
+                        'id_historial' => $historial->id_historial,
+                        'id_enfermedad' => $id_enfermedad,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+            // Medicamentos
+            \DB::table('medicacion_actual')->where('id_historial', $historial->id_historial)->delete();
+            if ($request->has('medicamentos')) {
+                foreach ($request->medicamentos as $id_medicamento) {
+                    \DB::table('medicacion_actual')->insert([
+                        'id_historial' => $historial->id_historial,
+                        'id_medicamento' => $id_medicamento,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
+
+        session()->flash('swal', [
+            'title' => "¡Bien hecho!",
+            'text' => "Paciente actualizado correctamente",
+            'icon' => "success"
+        ]);
         return redirect()->route('recepcionista.pacientes.buscar')
                         ->with('success', 'Paciente actualizado exitosamente.');
     }
@@ -375,20 +438,5 @@ public function guardarPaciente(Request $request)
         );
 
         return view('recepcionista.citas.paciente', compact('paciente', 'citas'));
-    }
-
-    public function buscarPacientesAjax(Request $request)
-    {
-        $q = $request->input('q');
-        $pacientes = collect(\App\Services\DataService::getPacientes())
-            ->filter(function ($paciente) use ($q) {
-                return str_contains(strtolower($paciente['nombre']), strtolower($q))
-                    || str_contains(strtolower($paciente['apellidos']), strtolower($q))
-                    || str_contains(strtolower($paciente['dni']), strtolower($q));
-            })
-            ->values()
-            ->all();
-
-        return response()->json($pacientes);
     }
 }

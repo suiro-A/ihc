@@ -47,8 +47,8 @@
                             <th class="px-4 py-2"></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @forelse($pacientes as $paciente)
+                    <tbody id="pacientes-tbody">
+                        @foreach($allPacientes as $paciente)
                             <tr>
                                 <td class="px-4 py-2 text-left align-middle">{{ $paciente->nombres }} {{ $paciente->apellidos }}</td>
                                 <td class="px-4 py-2 text-left align-middle">{{ $paciente->dni }}</td>
@@ -68,26 +68,75 @@
                                     </a>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-gray-500">No se encontraron pacientes.</td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
-
-            <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
-                @php
-                $from = ($pacientes->currentPage() - 1) * $pacientes->perPage() + 1;
-                $to = $from + $pacientes->count() - 1;
-                @endphp
-                    <div class="flex items-center space-x-2">
-                        Mostrando {{ $from }} a {{ $to }} registros
-                    </div>
-                    {{ $pacientes->links() }}
-            </div>
+            <div id="paginacion-info"></div>
         </div>
     </div>
 </div>
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.querySelector('input[name="buscar"]');
+    const tbody = document.getElementById('pacientes-tbody');
+    const filas = Array.from(tbody.querySelectorAll('tr'));
+    const filasPorPagina = 5;
+    let paginaActual = 1;
+
+    function filtrarYPaginar() {
+        let filtro = buscador.value.toLowerCase();
+        let filasFiltradas = filas.filter(fila => {
+            let nombre = fila.cells[0]?.innerText.toLowerCase() || '';
+            let dni = fila.cells[1]?.innerText.toLowerCase() || '';
+            return nombre.includes(filtro) || dni.includes(filtro);
+        });
+
+        filas.forEach(fila => fila.style.display = 'none');
+        let inicio = (paginaActual - 1) * filasPorPagina;
+        let fin = inicio + filasPorPagina;
+        filasFiltradas.slice(inicio, fin).forEach(fila => fila.style.display = '');
+
+        actualizarPaginacion(filasFiltradas.length);
+    }
+
+    function actualizarPaginacion(totalFiltradas) {
+        let totalPaginas = Math.ceil(totalFiltradas / filasPorPagina);
+        let paginacionInfo = document.getElementById('paginacion-info');
+        if (!paginacionInfo) return;
+
+        let inicio = totalFiltradas === 0 ? 0 : ((paginaActual - 1) * filasPorPagina) + 1;
+        let fin = Math.min(paginaActual * filasPorPagina, totalFiltradas);
+
+        let texto = `<div>Mostrando ${inicio} a ${fin} de ${totalFiltradas} registros</div>`;
+
+        let botones = '';
+        if (totalPaginas > 1) {
+            botones += `<button class="mx-1 px-2 py-1 rounded ${paginaActual === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gray-200'}" 
+                onclick="cambiarPagina(${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}>Anterior</button>`;
+            // botones += `<span class="mx-2">Página ${paginaActual} de ${totalPaginas}</span>`;
+            botones += `<button class="mx-1 px-2 py-1 rounded ${paginaActual === totalPaginas ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gray-200'}" 
+                onclick="cambiarPagina(${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}>Siguiente</button>`;
+        }
+
+        paginacionInfo.className = 'flex items-center justify-between mt-4 text-sm text-gray-500';
+        paginacionInfo.innerHTML = `<div>${texto}</div><div>${botones}</div>`;
+    }
+
+    // Nueva función global para los botones
+    window.cambiarPagina = function(num) {
+        paginaActual = num;
+        filtrarYPaginar();
+    }
+
+    buscador.addEventListener('keyup', function() {
+        paginaActual = 1;
+        filtrarYPaginar();
+    });
+
+    // Inicializa mostrando la primera página
+    filtrarYPaginar();
+});
+</script>
