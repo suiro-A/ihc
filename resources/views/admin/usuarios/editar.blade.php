@@ -63,7 +63,7 @@
               </div>
               <div>
                 <label for="role" class="block text-sm font-medium text-gray-700">Rol</label>
-                <select name="role" id="role" required
+                <select name="role" id="role" required disabled
                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
                   <option value="">Seleccionar rol</option>
                   @foreach ($roles as $rol)
