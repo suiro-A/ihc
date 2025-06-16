@@ -39,21 +39,18 @@ class AdminController extends Controller
 
   public function gestionUsuarios(Request $request)
   {
-    $usuarios = collect(DataService::getUsers())->map(function ($usuario) {
-      $roles = DataService::getRoles();
-      $rol = collect($roles)->firstWhere('name', $usuario['role']);
-      $usuario['rol_display'] = $rol ? $rol['display_name'] : $usuario['role'];
-      return $usuario;
-    });
+    $query = Usuario::query();
 
-    // Filtro por nombre o email
+    // Si hay búsqueda, filtramos por nombres o correo
     if ($request->filled('buscar')) {
-      $buscar = strtolower($request->buscar);
-      $usuarios = $usuarios->filter(function ($usuario) use ($buscar) {
-        return str_contains(strtolower($usuario['name']), $buscar)
-          || str_contains(strtolower($usuario['email']), $buscar);
+      $buscar = $request->buscar;
+      $query->where(function ($q) use ($buscar) {
+        $q->where('nombres', 'like', "%$buscar%")
+          ->orWhere('correo', 'like', "%$buscar%");
       });
     }
+
+    $usuarios = $query->get();
 
     return view('admin.usuarios.index', compact('usuarios'));
   }

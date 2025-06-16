@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Usuario extends Model
 {
   protected $table = 'usuario';
-  
+
   protected $primaryKey = 'id_usuario';
   
   protected $fillable = [
@@ -41,5 +41,10 @@ class Usuario extends Model
   public function isAdministrativo(): bool
   {
     return $this->rol == self::ROL_ADMIN;
+  }
+
+  public function rolNombre()
+  {
+    return $this->belongsTo(Rol::class, 'rol', 'id_rol');
   }
 }
