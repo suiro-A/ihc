@@ -149,8 +149,47 @@ public function guardarPaciente(Request $request)
 
     public function editarPaciente($id)
     {
-    $paciente = \App\Models\Paciente::findOrFail($id);
-    return view('recepcionista.pacientes.editar', compact('paciente'));
+        $paciente = \App\Models\Paciente::findOrFail($id);
+
+        // Obtener todas las opciones
+        $alergias = \App\Models\Alergia::all();
+        $cronicas = \App\Models\EnfermedadCronica::all();
+        $medicamentos = \App\Models\Medicamento::all();
+
+        // Obtener el historial clínico del paciente
+        $historial = \App\Models\HistorialClinico::where('id_paciente', $paciente->id_paciente)->first();
+
+        // Arrays de IDs seleccionados
+        $alergiasSeleccionadas = [];
+        $cronicasSeleccionadas = [];
+        $medicamentosSeleccionados = [];
+
+        if ($historial) {
+            $alergiasSeleccionadas = \DB::table('historial_alergia')
+                ->where('id_historial', $historial->id_historial)
+                ->pluck('id_alergia')
+                ->toArray();
+
+            $cronicasSeleccionadas = \DB::table('historial_enfermedad')
+                ->where('id_historial', $historial->id_historial)
+                ->pluck('id_enfermedad')
+                ->toArray();
+
+            $medicamentosSeleccionados = \DB::table('medicacion_actual')
+                ->where('id_historial', $historial->id_historial)
+                ->pluck('id_medicamento')
+                ->toArray();
+        }
+
+        return view('recepcionista.pacientes.editar', compact(
+            'paciente',
+            'alergias',
+            'cronicas',
+            'medicamentos',
+            'alergiasSeleccionadas',
+            'cronicasSeleccionadas',
+            'medicamentosSeleccionados'
+        ));
     }
 
     public function actualizarPaciente(Request $request, $id)

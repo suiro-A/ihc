@@ -100,27 +100,45 @@
                     <h3 class="text-lg font-semibold mb-2">Información Médica</h3>
                     <p class="text-gray-600 mb-4">Datos médicos relevantes</p>
                     <div class="space-y-4">
+                        {{-- Solo lectura de Alergias --}}
                         <div>
                             <label for="alergias" class="block text-sm font-medium text-gray-700">Alergias</label>
-                            <input type="text" name="alergias" id="alergias"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   value="{{ old('alergias', $paciente['alergias'] ?? '') }}"
-                                   placeholder="Medicamentos, alimentos, etc.">
+                            <select name="alergias[]" id="alergias" class="mi-select" multiple disabled style="width: 100%">
+                                @foreach($alergias as $alergia)
+                                    <option value="{{ $alergia->id_alergia }}"
+                                        {{ in_array($alergia->id_alergia, $alergiasSeleccionadas ?? []) ? 'selected' : '' }}>
+                                        {{ $alergia->descripcion }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+
+                        {{-- Solo lectura de Enfermedades Crónicas --}}
                         <div>
-                            <label for="enfermedades_cronicas" class="block text-sm font-medium text-gray-700">Enfermedades Crónicas</label>
-                            <input type="text" name="enfermedades_cronicas" id="enfermedades_cronicas"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   value="{{ old('enfermedades_cronicas', $paciente['enfermedades_cronicas'] ?? '') }}"
-                                   placeholder="Diabetes, hipertensión, etc.">
+                            <label for="cronicas" class="block text-sm font-medium text-gray-700">Enfermedades Crónicas</label>
+                            <select name="cronicas[]" id="cronicas" class="mi-select" multiple disabled style="width: 100%">
+                                @foreach($cronicas as $cronica)
+                                    <option value="{{ $cronica->id_enfermedad }}"
+                                        {{ in_array($cronica->id_enfermedad, $cronicasSeleccionadas ?? []) ? 'selected' : '' }}>
+                                        {{ $cronica->descripcion }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+
+                        {{-- Solo lectura de Medicamentos --}}
                         <div>
-                            <label for="medicacion_actual" class="block text-sm font-medium text-gray-700">Medicación Actual</label>
-                            <input type="text" name="medicacion_actual" id="medicacion_actual"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   value="{{ old('medicacion_actual', $paciente['medicacion_actual'] ?? '') }}"
-                                   placeholder="Medicamentos que toma actualmente">
+                            <label for="medicamentos" class="block text-sm font-medium text-gray-700">Medicamentos</label>
+                            <select name="medicamentos[]" id="medicamentos" class="mi-select" multiple disabled style="width: 100%">
+                                @foreach($medicamentos as $medicamento)
+                                    <option value="{{ $medicamento->id_medicamento }}"
+                                        {{ in_array($medicamento->id_medicamento, $medicamentosSeleccionados ?? []) ? 'selected' : '' }}>
+                                        {{ $medicamento->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+
                         <div>
                             <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones</label>
                             <textarea name="observaciones" id="observaciones" rows="4"
