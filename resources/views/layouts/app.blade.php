@@ -75,9 +75,7 @@
                                     {{ request()->routeIs('admin.usuarios.*') ? 'bg-green-100 font-bold text-green-700' : '' }}"
                                 :class="open ? 'px-4 justify-start' : 'justify-center'"
                             >
-                                <span class="material-icons"
-                                    :class="open ? 'mr-3' : ''"
-                                >group</span>
+                                <img src="{{ asset('icons/usuario.png') }}" alt="paciente" class="w-8 h-8 inline-block mr-4">
                                 <span x-show="open" class="transition-all duration-200">Gestión de Usuarios</span>
                             </a>
                         </li>

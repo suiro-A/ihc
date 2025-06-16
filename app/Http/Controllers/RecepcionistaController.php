@@ -53,6 +53,7 @@ class RecepcionistaController extends Controller
 
 public function guardarPaciente(Request $request)
 {
+    
     $request->validate([
         'nombres' => 'required|string|max:40',
         'apellidos' => 'required|string|max:40',

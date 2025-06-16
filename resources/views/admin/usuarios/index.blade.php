@@ -82,13 +82,9 @@
                                                     class="inline-flex items-center px-2 py-1 {{ $usuario->estado ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} text-xs rounded"
                                                     title="{{ $usuario->estado ? 'Desactivar' : 'Activar' }}">
                                                 @if($usuario->estado)
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636"></path>
-                                                    </svg>
+                                                    <img src="{{ asset('icons/desactivar.png') }}" alt="paciente" class="w-8 h-8 inline-block">
                                                 @else
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg>
+                                                    <img src="{{ asset('icons/activar.png') }}" alt="paciente" class="w-8 h-8 inline-block">
                                                 @endif
                                             </button>
                                         </form>
