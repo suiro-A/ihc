@@ -18,7 +18,9 @@ return new class extends Migration
             $table->unsignedBigInteger('id_especialidad');
             $table->string('motivo');
             $table->string('estado');
-            
+            $table->unsignedBigInteger('id_hora');
+            $table->date('fecha');
+
             $table->timestamps();
         });
     }

@@ -317,41 +317,39 @@ public function buscarPacientes(Request $request)
 
     public function agendarCita(Request $request)
     {
-        $pacienteId = $request->get('paciente');
-        $paciente = $pacienteId ? DataService::findPaciente($pacienteId) : null;
-        
-        $pacientes = collect(DataService::getPacientes())->sortBy('nombre');
-        $doctores = DataService::getUsersByRole('doctor')->where('is_active', true);
-        
-        return view('recepcionista.citas.agendar', compact('pacientes', 'doctores', 'paciente'));
+        $paciente = null;
+        $pacientes = \App\Models\Paciente::orderBy('nombres')->get();
+
+        if ($request->has('paciente_id')) {
+            $paciente = \App\Models\Paciente::find($request->paciente_id);
+        }
+
+        // Obtener médicos con usuario y especialidad
+        $doctores = \App\Models\Medico::with(['usuario', 'especialidadNombre'])->get();
+
+        return view('recepcionista.citas.agendar', compact('pacientes', 'paciente', 'doctores'));
     }
 
     public function guardarCita(Request $request)
     {
         $request->validate([
-            'paciente_id' => 'required|exists:pacientes,id',
-            'doctor_id' => 'required',
-            'fecha' => 'required|date|after_or_equal:today',
-            'hora' => 'required',
+            'paciente_id' => 'required|exists:paciente,id_paciente',
+            'doctor_id' => 'required|exists:medico,id_usuario',
             'motivo' => 'required|string',
+            'fecha' => 'required|date',
+            'hora' => 'required'
         ]);
 
-        // Verificar disponibilidad
-        $citaExistente = collect(DataService::getCitas())
-                        ->where('doctor_id', $request->doctor_id)
-                        ->where('fecha', $request->fecha)
-                        ->where('hora', $request->hora)
-                        ->where('estado', '!=', 'cancelada')
-                        ->isNotEmpty();
+        // Aquí puedes crear la cita
+        \App\Models\Cita::create([
+            'id_paciente' => $request->paciente_id,
+            'id_doctor' => $request->doctor_id,
+            'motivo' => $request->motivo,
+            'fecha' => $request->fecha,
+            'hora' => $request->hora,
+        ]);
 
-        if ($citaExistente) {
-            return back()->withErrors(['hora' => 'El horario seleccionado no está disponible.']);
-        }
-
-        // En un sistema real, aquí guardaríamos en la base de datos
-        
-        return redirect()->route('recepcionista.citas.index')
-                        ->with('success', 'Cita agendada exitosamente.');
+        return redirect()->route('recepcionista.citas.index')->with('success', 'Cita agendada correctamente');
     }
 
     public function editarCita($id)

@@ -9,6 +9,9 @@ class Cita extends Model
 {
     use HasFactory;
 
+    protected $table = 'cita'; // nombre correcto de la tabla
+    protected $primaryKey = 'id_cita'; // si tu PK es id_cita
+
     protected $fillable = [
         'paciente_id',
         'doctor_id',
