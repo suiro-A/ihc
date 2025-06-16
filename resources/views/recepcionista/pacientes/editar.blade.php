@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Editar Paciente')
@@ -18,7 +17,7 @@
         </div>
     </div>
 
-    <form action="{{ route('recepcionista.pacientes.actualizar', $paciente['id']) }}" method="POST">
+    <form action="{{ route('recepcionista.pacientes.actualizar', $paciente->id_paciente) }}" method="POST">
         @csrf
         @method('PUT')
         <div class="bg-white rounded-lg shadow mb-6">
@@ -31,16 +30,16 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="nombre" class="block text-sm font-medium text-gray-700">Nombres</label>
-                            <input type="text" name="nombre" id="nombre" required
+                            <input type="text" name="nombres" id="nombres" required
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   value="{{ old('nombre', $paciente['nombre']) }}"
+                                   value="{{ old('nombres', $paciente->nombres) }}"
                                    placeholder="Nombres">
                         </div>
                         <div>
                             <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos</label>
                             <input type="text" name="apellidos" id="apellidos" required
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   value="{{ old('apellidos', $paciente['apellidos']) }}"
+                                   value="{{ old('apellidos', $paciente->apellidos) }}"
                                    placeholder="Apellidos">
                         </div>
                     </div>
@@ -50,14 +49,14 @@
                             <label for="dni" class="block text-sm font-medium text-gray-700">DNI/Documento</label>
                             <input type="text" name="dni" id="dni" required
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   value="{{ old('dni', $paciente['dni']) }}"
+                                   value="{{ old('dni', $paciente->dni) }}"
                                    placeholder="ingrese el DNI o documento">
                         </div>
                         <div>
                             <label for="fecha_nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
                             <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   value="{{ old('fecha_nacimiento', $paciente['fecha_nacimiento']) }}">
+                                   value="{{ old('fecha_nacimiento', $paciente->fecha_nac ? $paciente->fecha_nac->format('Y-m-d') : '') }}">
                         </div>
                     </div>
                     <!-- Tercera fila: Género -->
@@ -67,8 +66,8 @@
                             <select name="genero" id="genero" required
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
                                 <option value="">Seleccionar</option>
-                                <option value="masculino" {{ old('genero', $paciente['genero']) == 'masculino' ? 'selected' : '' }}>Masculino</option>
-                                <option value="femenino" {{ old('genero', $paciente['genero']) == 'femenino' ? 'selected' : '' }}>Femenino</option>
+                                <option value="masculino" {{ old('genero', $paciente->sexo ? 'masculino' : 'femenino') == 'masculino' ? 'selected' : '' }}>Masculino</option>
+                                <option value="femenino" {{ old('genero', $paciente->sexo ? 'masculino' : 'femenino') == 'femenino' ? 'selected' : '' }}>Femenino</option>
                             </select>
                         </div>
                     </div>
@@ -83,14 +82,14 @@
                             <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
                             <input type="tel" name="telefono" id="telefono" required
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   value="{{ old('telefono', $paciente['telefono']) }}"
+                                   value="{{ old('telefono', $paciente->telefono) }}"
                                    placeholder="123456789">
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
                             <input type="email" name="email" id="email"
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                   value="{{ old('email', $paciente['email']) }}"
+                                   value="{{ old('email', $paciente->correo) }}"
                                    placeholder="ejemplo@correo.com">
                         </div>
                     </div>
@@ -138,7 +137,7 @@
                         Cancelar
                     </a>
                     <button type="submit" 
-                            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
+                            class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
                         Actualizar Paciente
                     </button>
                 </div>

@@ -11,6 +11,8 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
@@ -112,9 +114,7 @@
                                     {{ request()->routeIs('recepcionista.pacientes.*') ? 'bg-green-100 font-bold text-green-700' : '' }}"
                                 :class="open ? 'px-4 justify-start' : 'justify-center'"
                             >
-                                <span class="material-icons"
-                                    :class="open ? 'mr-3' : ''"
-                                >people</span>
+                                <img src="{{ asset('icons/paciente.png') }}" alt="paciente" class="w-10 h-10 inline-block mr-4">
                                 <span x-show="open" class="transition-all duration-200">Paciente</span>
                                 <span class="material-icons ml-auto" x-show="open" x-text="pacienteOpen ? 'expand_less' : 'expand_more'"></span>
                             </button>
@@ -124,7 +124,7 @@
                                         class="flex items-center py-2 text-gray-700 hover:bg-green-50
                                             {{ request()->routeIs('recepcionista.pacientes.registrar') ? 'bg-green-100 font-bold text-green-700' : '' }}"
                                     >
-                                        <span class="material-icons mr-2 text-base">person_add</span>
+                                        <img src="{{ asset('icons/paciente_agregar.png') }}" alt="paciente registrar" class="w-10 h-10 inline-block mr-4">
                                         <span>Registrar Paciente</span>
                                     </a>
                                 </li>
@@ -133,7 +133,7 @@
                                         class="flex items-center py-2 text-gray-700 hover:bg-green-50
                                             {{ request()->routeIs('recepcionista.pacientes.buscar') ? 'bg-green-100 font-bold text-green-700' : '' }}"
                                     >
-                                        <span class="material-icons mr-2 text-base">search</span>
+                                        <img src="{{ asset('icons/paciente_buscar.png') }}" alt="paciente buscar" class="w-10 h-10 inline-block mr-4">
                                         <span>Buscar Paciente</span>
                                     </a>
                                 </li>
@@ -146,9 +146,7 @@
                                     {{ request()->routeIs('recepcionista.citas.index') ? 'bg-green-100 font-bold text-green-700' : '' }}"
                                 :class="open ? 'px-4 justify-start' : 'justify-center'"
                             >
-                                <span class="material-icons"
-                                    :class="open ? 'mr-3' : ''"
-                                >event</span>
+                               <img src="{{ asset('icons/citas.png') }}" alt="Ícono de citas" class="w-10 h-10 inline-block mr-4">
                                 <span x-show="open" class="transition-all duration-200">Citas</span>
                             </a>
                         </li>
@@ -214,9 +212,15 @@
     <div :class="open ? 'ml-64' : 'ml-24'">
         <main class="p-8 min-h-screen">
             @if(session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
                     {{ session('success') }}
                 </div>
+                <script>
+                    setTimeout(function() {
+                        var msg = document.getElementById('success-message');
+                        if(msg) msg.style.display = 'none';
+                    }, 4000);
+                </script>
             @endif
 
             @if(session('error'))
@@ -232,5 +236,23 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Alpine.js CDN -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.mi-select').select2({
+            placeholder: "Selecciona una o más opciones",
+            allowClear: true,
+            language: {
+                noResults: function() {
+                    return "No se encontraron resultados";
+                }
+           }
+        });
+    });
+    </script>
 </body>
+
 </html>
