@@ -12,4 +12,9 @@ class Medico extends Model
   public $incrementing = false;
   protected $fillable = ['id_usuario','especialidad', 'num_colegiatura'];
   public $timestamps = false;
+
+  public function especialidadNombre()
+  {
+    return $this->belongsTo(Especialidad::class, 'especialidad', 'id_especialidad');
+  }
 }

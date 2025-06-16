@@ -183,7 +183,12 @@ class AdminController extends Controller
 
   public function disponibilidad()
   {
-    $doctores = DataService::getUsersByRole('doctor')->where('is_active', true);
+    $doctores = Usuario::with(['medico.especialidadNombre'])
+      ->where('rol', Usuario::ROL_DOCTOR)
+      ->where('estado', true)
+      ->orderBy('nombres')
+      ->get();
+
     return view('admin.disponibilidad.index', compact('doctores'));
   }
 

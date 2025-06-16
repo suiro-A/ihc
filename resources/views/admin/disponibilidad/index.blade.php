@@ -20,7 +20,7 @@
                 <select id="doctor" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
                     <option value="">Seleccione un doctor</option>
                     @foreach($doctores as $doctor)
-                        <option value="{{ $doctor['id'] }}">{{ $doctor['name'] }} - {{ $doctor['especialidad'] ?? 'Medicina General' }}</option>
+                        <option value="{{ $doctor->id_usuario }}">{{ $doctor->nombres }} - {{ $doctor->medico?->especialidadNombre?->nombre ?? 'Medicina General' }}</option>
                     @endforeach
                 </select>
             </div>
