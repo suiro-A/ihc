@@ -38,74 +38,54 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DNI</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edad</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Cita</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            <th class="px-4 py-2 text-left">Nombre</th>
+                            <th class="px-4 py-2 text-left">DNI</th>
+                            <th class="px-4 py-2 text-left">Edad</th>
+                            <th class="px-4 py-2 text-left">Teléfono</th>
+                            <th class="px-4 py-2 text-left">Correo</th>
+                            <th class="px-4 py-2 text-left">Última cita</th>
+                            <th class="px-4 py-2"></th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody>
                         @forelse($pacientes as $paciente)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $paciente['nombre'] }} {{ $paciente['apellidos'] }}</div>
+                                <td class="px-4 py-2 text-left align-middle">{{ $paciente->nombres }} {{ $paciente->apellidos }}</td>
+                                <td class="px-4 py-2 text-left align-middle">{{ $paciente->dni }}</td>
+                                <td class="px-4 py-2 text-left align-middle">{{ $paciente->edad ?? '-' }}</td>
+                                <td class="px-4 py-2 text-left align-middle">{{ $paciente->telefono }}</td>
+                                <td class="px-4 py-2 text-left align-middle">{{ $paciente->correo }}</td>
+                                <td class="px-4 py-2 text-left align-middle">
+                                    {{ $paciente->ultima_cita ? $paciente->ultima_cita : 'Sin citas' }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $paciente['dni'] }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $paciente['edad'] }} años</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $paciente['telefono'] }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $paciente['ultima_cita'] }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('recepcionista.citas.agendar', ['paciente' => $paciente['id']]) }}" 
-                                           class="inline-flex items-center px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                            </svg>
-                                            Agendar
-                                        </a>
-                                        <a href="{{ route('recepcionista.pacientes.editar', $paciente['id']) }}" 
+                                <td class="px-4 py-2 text-center align-middle space-x-1">
+                                    <a href="{{ route('recepcionista.pacientes.editar', $paciente->id_paciente) }}" 
                                            class="inline-flex items-center px-2 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700">
                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                             </svg>
                                             Editar
-                                        </a>
-                                        <a href="{{ route('recepcionista.citas.paciente', $paciente['id']) }}" 
-                                           class="inline-flex items-center px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">
-                                            Ver citas
-                                        </a>
-                                    </div>
+                                    </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                    No hay pacientes registrados
-                                </td>
+                                <td colspan="7" class="text-center text-gray-500">No se encontraron pacientes.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4 text-sm text-gray-500">
+
+            <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
                 @php
-                    $total = count($pacientes);
-                    $perPage = 5;
-                    $page = request('page', 1);
-                    $from = $total > 0 ? (($page - 1) * $perPage) + 1 : 0;
-                    $to = min($from + $perPage - 1, $total);
+                $from = ($pacientes->currentPage() - 1) * $pacientes->perPage() + 1;
+                $to = $from + $pacientes->count() - 1;
                 @endphp
-                Mostrando {{ $from }} a {{ $to }} de {{ $total }} registros
+                    <div class="flex items-center space-x-2">
+                        Mostrando {{ $from }} a {{ $to }} registros
+                    </div>
+                    {{ $pacientes->links() }}
             </div>
         </div>
     </div>

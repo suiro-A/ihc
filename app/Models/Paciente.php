@@ -52,6 +52,6 @@ class Paciente extends Model
 
     public function getEdadAttribute()
     {
-        return $this->fecha_nacimiento->age;
+        return $this->fecha_nac ? \Carbon\Carbon::parse($this->fecha_nac)->age : null;
     }
 }

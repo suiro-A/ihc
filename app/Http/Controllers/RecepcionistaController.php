@@ -51,22 +51,123 @@ class RecepcionistaController extends Controller
         return view('recepcionista.pacientes.registrar', compact('alergias', 'cronicas', 'medicamentos'));
     }
 
-    public function guardarPaciente(Request $request)
+public function guardarPaciente(Request $request)
+{
+    $request->validate([
+        'nombres' => 'required|string|max:40',
+        'apellidos' => 'required|string|max:40',
+        'dni' => 'required|string|max:40|unique:paciente,dni',
+        'fecha_nacimiento' => 'required|date',
+        'genero' => 'required|in:masculino,femenino',
+        'telefono' => 'required|string|max:40',
+        'email' => 'nullable|email|max:40',
+        'alergias' => 'array',
+        'alergias.*' => 'exists:alergia,id_alergia',
+        'cronicas' => 'array',
+        'cronicas.*' => 'exists:enfermedad_cronica,id_enfermedad',
+        'medicamentos' => 'array',
+        'medicamentos.*' => 'exists:medicamento,id_medicamento',
+    ]);
+
+    $paciente = Paciente::create([
+        'nombres' => $request->nombres,
+        'apellidos' => $request->apellidos,
+        'dni' => $request->dni,
+        'fecha_nac' => $request->fecha_nacimiento,
+        'sexo' => $request->genero === 'masculino' ? 1 : 0,
+        'telefono' => $request->telefono,
+        'correo' => $request->email,
+    ]);
+
+    // Crear historial clínico
+    $historial = HistorialClinico::create([
+        'id_paciente' => $paciente->id_paciente,
+    ]);
+
+    // Guardar todas las alergias seleccionadas
+    if ($request->has('alergias')) {
+        foreach ($request->alergias as $id_alergia) {
+            \DB::table('historial_alergia')->insert([
+                'id_historial' => $historial->id_historial,
+                'id_alergia' => $id_alergia,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    // Guardar todas las enfermedades crónicas seleccionadas
+    if ($request->has('cronicas')) {
+        foreach ($request->cronicas as $id_enfermedad) {
+            \DB::table('historial_enfermedad')->insert([
+                'id_historial' => $historial->id_historial,
+                'id_enfermedad' => $id_enfermedad,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    // Guardar todos los medicamentos seleccionados
+    if ($request->has('medicamentos')) {
+        foreach ($request->medicamentos as $id_medicamento) {
+            \DB::table('medicacion_actual')->insert([
+                'id_historial' => $historial->id_historial,
+                'id_medicamento' => $id_medicamento,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    return redirect()->route('recepcionista.citas.agendar')
+        ->with('success', 'Paciente registrado exitosamente.');
+}
+
+    public function buscarPacientes(Request $request)
     {
+    $query = $request->input('buscar');
+
+    // Búsqueda por nombre, apellidos o DNI
+    $pacientes = Paciente::query()
+        ->when($query, function ($q) use ($query) {
+            $q->where('nombres', 'like', "%{$query}%")
+              ->orWhere('apellidos', 'like', "%{$query}%")
+              ->orWhere('dni', 'like', "%{$query}%");
+        })
+        ->orderBy('apellidos')
+        ->simplePaginate(5);
+
+    // Puedes calcular edad y última cita si tienes esas relaciones
+        $pacientes->each(function ($paciente) {
+            $paciente->edad = $paciente->fecha_nac ? \Carbon\Carbon::parse($paciente->fecha_nac)->age : null;
+            $paciente->ultima_cita = '####'; // Cambia esto si tienes la relación
+        });
+
+    return view('recepcionista.pacientes.buscar', compact('pacientes'));
+    }
+
+    public function editarPaciente($id)
+    {
+    $paciente = \App\Models\Paciente::findOrFail($id);
+    return view('recepcionista.pacientes.editar', compact('paciente'));
+    }
+
+    public function actualizarPaciente(Request $request, $id)
+    {
+        $paciente = \App\Models\Paciente::findOrFail($id);
+        
         $request->validate([
             'nombres' => 'required|string|max:40',
             'apellidos' => 'required|string|max:40',
-            'dni' => 'required|string|max:40|unique:paciente,dni',
+            'dni' => 'required|string|max:40|unique:paciente,dni,' . $paciente->id_paciente . ',id_paciente',
             'fecha_nacimiento' => 'required|date',
             'genero' => 'required|in:masculino,femenino',
             'telefono' => 'required|string|max:40',
             'email' => 'nullable|email|max:40',
-            'alergia' => 'required|exists:alergia,id_alergia',
-            'cronica' => 'required|exists:enfermedad_cronica,id_enfermedad',
-            'medicamento' => 'required|exists:medicamento,id_medicamento',
         ]);
 
-        $paciente = Paciente::create([
+        $paciente->update([
             'nombres' => $request->nombres,
             'apellidos' => $request->apellidos,
             'dni' => $request->dni,
@@ -76,98 +177,6 @@ class RecepcionistaController extends Controller
             'correo' => $request->email,
         ]);
 
-        // Crear historial clínico
-        $historial = HistorialClinico::create([
-            'id_paciente' => $paciente->id_paciente,
-        ]);
-
-        // Guardar alergia seleccionada
-        \DB::table('historial_alergia')->insert([
-            'id_historial' => $historial->id_historial,
-            'id_alergia' => $request->alergia,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Guardar enfermedad crónica seleccionada
-        \DB::table('historial_enfermedad')->insert([
-            'id_historial' => $historial->id_historial,
-            'id_enfermedad' => $request->cronica,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Guardar medicamento seleccionado
-        \DB::table('medicacion_actual')->insert([
-            'id_historial' => $historial->id_historial,
-            'id_medicamento' => $request->medicamento,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        return redirect()->route('recepcionista.citas.agendar')
-            ->with('success', 'Paciente registrado exitosamente.');
-    }
-
-    public function buscarPacientes(Request $request)
-    {
-        $query = $request->input('buscar');
-        $pacientes = collect(DataService::getPacientes());
-
-        if ($query) {
-            $pacientes = $pacientes->filter(function ($paciente) use ($query) {
-                $nombreCompleto = strtolower($paciente['nombres'] . ' ' . $paciente['apellidos']);
-                return str_contains(strtolower($paciente['nombres']), strtolower($query))
-                    || str_contains(strtolower($paciente['apellidos']), strtolower($query))
-                    || str_contains(strtolower($nombreCompleto), strtolower($query))
-                    || str_contains(strtolower($paciente['dni']), strtolower($query));
-            });
-        }
-
-        // Enriquecer con última cita y edad
-        $pacientes = $pacientes->map(function ($paciente) {
-            $ultimaCita = DataService::getCitasByPaciente($paciente['id'])
-                                    ->sortByDesc('fecha')
-                                    ->first();
-            $paciente['ultima_cita'] = $ultimaCita ? $ultimaCita['fecha'] : 'Sin citas';
-            $paciente['edad'] = DataService::getEdadPaciente($paciente['fecha_nacimiento']);
-            return $paciente;
-        });
-        
-        return view('recepcionista.pacientes.buscar', compact('pacientes'));
-    }
-
-    public function editarPaciente($id)
-    {
-        $paciente = DataService::findPaciente($id);
-        
-        if (!$paciente) {
-            abort(404, 'Paciente no encontrado');
-        }
-        
-        return view('recepcionista.pacientes.editar', compact('paciente'));
-    }
-
-    public function actualizarPaciente(Request $request, $id)
-    {
-        $paciente = DataService::findPaciente($id);
-        
-        if (!$paciente) {
-            abort(404, 'Paciente no encontrado');
-        }
-        
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'apellidos' => 'required|string|max:255',
-            'dni' => 'required|string',
-            'fecha_nacimiento' => 'required|date',
-            'genero' => 'required|in:masculino,femenino,otro',
-            'telefono' => 'required|string',
-            'email' => 'nullable|email',
-        ]);
-
-        // En un sistema real, aquí actualizaríamos en la base de datos
-        
         return redirect()->route('recepcionista.pacientes.buscar')
                         ->with('success', 'Paciente actualizado exitosamente.');
     }
