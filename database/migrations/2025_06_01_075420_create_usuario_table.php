@@ -20,6 +20,7 @@ return new class extends Migration
             // $table->boolean('sexo');
             $table->string('telefono',40);
             $table->string('correo',40);
+            $table->boolean('estado')->default(1); // 1 = activo, 0 = inactivo
             $table->string('clave');
             $table->unsignedBigInteger('rol');
             $table->timestamps();
