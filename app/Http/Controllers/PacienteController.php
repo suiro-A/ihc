@@ -157,13 +157,7 @@ class PacienteController extends Controller
         $paciente = Paciente::find($id);
         $paciente->delete();
         // return redirect()->route('prueba')->with('success', 'Paciente Eliminado correctamente');
-    
 
-         
-
-
-
-   
         return response()->json([
             'success' => true,
             'message' => 'Paciente eliminado correctamente'

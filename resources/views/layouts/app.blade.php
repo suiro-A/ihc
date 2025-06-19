@@ -24,6 +24,8 @@
     @yield('scripts')              {{-- Scripts específicos de la vista --}}
 
         <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    @yield('css')
 </head>
 <body class="bg-gray-100 font-sans antialiased min-h-screen" x-data="{ open: true }">
     <!-- Sidebar fijo -->
@@ -252,8 +254,98 @@
 
 
     <!-- Antes de cerrar </body> -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+{{-- * Estos son para la tabla de datatables --}}
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.4/js/responsive.bootstrap5.js"></script>
+
+    <!-- Extensión Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+    <!-- Código de inicialización -->
+    {{-- <script>
+        // new DataTable('#example');
+        new DataTable('#example', {
+            responsive: true,
+
+            // processing: true,
+            // serverSide: true,
+    //         dom: 'frtipB', // Botones al inicio
+    // buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+
+        // para ajax
+
+            ajax: '{{route("prueba.ajax")}}',
+             columns: [
+            { data: 'id_paciente' },
+            { data: 'nombres' },
+            { data: 'apellidos' },
+            { data: 'dni' },
+            { data: 'fecha_nac' },
+            { data: 'sexo' },
+            { data: 'telefono' },
+            { data: 'correo' }
+        ],
+            
+            // Lenguaje con CDN
+        language: {
+
+            url: 'https://cdn.datatables.net/plug-ins/1.13.5/i18n/es-ES.json'
+        
+    }
+    // Lenguaje manual
+
+//            language: {
+// //   paginate: {
+// //     first: "Primero",
+// //     last: "Último",
+// //     next: "Siguiente",
+// //     previous: "Anterior"
+// //   },
+//       "aria": {
+//         "paginate": {
+//             "first": "Primero",
+//             "last": "Último",
+//             "next": "Siguiente",
+//             "previous": "Anterior"
+//         }
+//     },
+//   info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+//   lengthMenu: "Mostrar _MENU_ registros",
+//   search: "Buscar:",
+//   emptyTable: "No hay datos disponibles",
+//   buttons: {
+//     pdf: "PDF",
+//     excel: "Excel"
+//   }
+// }
+
+        });
+    </script> --}}
+
+    {{-- * Prueba de codigo --}}
+   
+
+    {{-- * --}}
 
 {{-- <script>
     $(document).ready(function() {
@@ -269,6 +361,7 @@
         });
     });
 </script> --}}
+@yield('js')
 @if (session('swal'))
     <script>
         Swal.fire(@json(session('swal')));

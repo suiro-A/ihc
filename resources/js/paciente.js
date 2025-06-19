@@ -95,6 +95,7 @@ window.eliminarPaciente = async function eliminarPaciente(id){
         });
 
         if (!res.ok) {
+            console.log(res.ok);
             const error = await res.json();
             throw new Error(error.message || `Error ${res.status}`);
         }
@@ -104,17 +105,15 @@ window.eliminarPaciente = async function eliminarPaciente(id){
         // row.remove();
 
         // alert('Paciente eliminado correctamente.');
-        Swal.fire({
-
-            
-
-
+        await Swal.fire({
         title:  "¡Bien hecho!",
         text: "Paciente eliminado correctamente",
         icon:  "success"
         });
         
-        search(buscar.value);
+        // search(buscar.value);
+        // location.reload();
+        $('#example').DataTable().ajax.reload(null, false); 
 
     } catch (err) {
         console.error('Error al eliminar paciente:', err);

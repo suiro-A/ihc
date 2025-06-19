@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\PacienteController;
+use App\Models\Paciente;
 use Illuminate\Support\Facades\Route;
+use Yajra\DataTables\Facades\DataTables;
 
 Route::get('/', function () {
     return view('recepcionista.dashboard');
@@ -34,5 +36,25 @@ Route::delete('/paciente/{id}', [PacienteController::class, 'destroy'])->name('p
 Route::get('/layout', function () {
     return view('layouts.app');
 });
+
+Route::get('/pruebatabla', function () {
+
+    $pacientes = Paciente::all();
+
+    return view('buscarPaciente');
+
+    
+});
+Route::get('/datatableajax', function () {
+
+    $pacientes = Paciente::all();
+    
+    // return DataTables::collection($pacientes)->toJson();
+    return DataTables::eloquent(Paciente::query())->toJson();
+
+    // return view('buscarPaciente', compact('pacientes'));
+
+    
+})->name('prueba.ajax');
 
 
