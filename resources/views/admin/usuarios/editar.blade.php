@@ -72,6 +72,7 @@
                     </option>
                   @endforeach
                 </select>
+                <input type="hidden" name="role" value="{{ $usuario->rol }}">
               </div>
             </div>
             <!-- Puedes agregar campos de contraseña si quieres permitir cambiarla -->
