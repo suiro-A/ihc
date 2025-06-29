@@ -127,8 +127,7 @@ public function guardarPaciente(Request $request)
         }
     }
 
-    return redirect()->route('recepcionista.citas.agendar')
-        ->with('success', 'Paciente registrado exitosamente.');
+    return redirect()->route('recepcionista.citas.agendar');
 }
 
 public function buscarPacientes(Request $request)
@@ -280,8 +279,7 @@ public function buscarPacientes(Request $request)
             'text' => "Paciente actualizado correctamente",
             'icon' => "success"
         ]);
-        return redirect()->route('recepcionista.pacientes.buscar')
-                        ->with('success', 'Paciente actualizado exitosamente.');
+        return redirect()->route('recepcionista.pacientes.buscar');
     }
 
     public function gestionarCitas(Request $request)

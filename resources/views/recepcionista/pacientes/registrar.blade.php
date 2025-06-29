@@ -139,8 +139,9 @@
                         Cancelar
                     </a>
                     <button type="submit" 
-                            class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-                        Registrar Paciente
+                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
+                    Registrar Paciente
+                    <img src="{{ asset('icons/usuario_agregar.png') }}" alt="paciente" class="w-8 h-8 inline-block ml-4">
                     </button>
                 </div>
             </div>
