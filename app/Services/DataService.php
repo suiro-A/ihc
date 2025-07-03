@@ -171,7 +171,7 @@ class DataService
                 'paciente_id' => 3,
                 'doctor_id' => 4,
                 'fecha' => Carbon::today()->format('Y-m-d'),
-                'hora' => '12:00',
+                'hora' => '15:00',
                 'motivo' => 'Evaluación cardiológica',
                 'estado' => 'agendada',
                 'observaciones' => null,
@@ -191,7 +191,7 @@ class DataService
                 'paciente_id' => 5,
                 'doctor_id' => 4,
                 'fecha' => Carbon::tomorrow()->format('Y-m-d'),
-                'hora' => '11:00',
+                'hora' => '16:00',
                 'motivo' => 'Consulta general',
                 'estado' => 'completada',
                 'observaciones' => 'Paciente en buen estado',
@@ -225,7 +225,7 @@ class DataService
             [
                 'id' => 1,
                 'paciente_id' => 1,
-                'cita_id' => 1,
+                'cita_id' => 6,
                 'doctor_id' => 1,
                 'diagnostico' => 'Hipertensión arterial controlada',
                 'indicaciones' => 'Continuar con medicación actual. Dieta baja en sodio y ejercicio regular.',
@@ -237,12 +237,12 @@ class DataService
                         'duracion' => '30 días'
                     ]
                 ],
-                'fecha_consulta' => Carbon::today()->format('Y-m-d H:i:s'),
+                'fecha_consulta' => Carbon::yesterday()->format('Y-m-d H:i:s'),
             ],
             [
                 'id' => 2,
                 'paciente_id' => 1,
-                'cita_id' => 2,
+                'cita_id' => null,
                 'doctor_id' => 1,
                 'diagnostico' => 'Cefalea tensional',
                 'indicaciones' => 'Reducir estrés, descanso adecuado y relajación.',
@@ -275,28 +275,46 @@ class DataService
             [
                 'id' => 1,
                 'doctor_id' => 1,
-                'fecha' => Carbon::today()->format('Y-m-d'),
-                'hora_inicio' => '09:00',
-                'hora_fin' => '17:00',
-                'disponible' => true,
+                'mes_anio' => Carbon::now()->format('Y-m'),
+                'turnos' => ['manana', 'tarde'],
+                'dias_semana' => [1, 2, 3, 4, 5], // Lunes a Viernes
             ],
             [
                 'id' => 2,
-                'doctor_id' => 1,
-                'fecha' => Carbon::tomorrow()->format('Y-m-d'),
-                'hora_inicio' => '09:00',
-                'hora_fin' => '13:00',
-                'disponible' => true,
-            ],
-            [
-                'id' => 3,
                 'doctor_id' => 4,
-                'fecha' => Carbon::today()->format('Y-m-d'),
-                'hora_inicio' => '10:00',
-                'hora_fin' => '18:00',
-                'disponible' => true,
+                'mes_anio' => Carbon::now()->format('Y-m'),
+                'turnos' => ['tarde'],
+                'dias_semana' => [1, 2, 3, 4, 5], // Lunes a Viernes
             ],
         ];
+    }
+
+    public static function getHorariosTurno($turno)
+    {
+        $horarios = [
+            'manana' => [
+                '07:00', '07:30', '08:00', '08:30', '09:00', 
+                '09:30', '10:00', '10:30', '11:00', '11:30'
+            ],
+            'tarde' => [
+                '14:00', '14:30', '15:00', '15:30', '16:00', 
+                '16:30', '17:00', '17:30', '18:00', '18:30'
+            ]
+        ];
+
+        return $horarios[$turno] ?? [];
+    }
+
+    public static function getTurnosDoctor($doctorId, $fecha = null)
+    {
+        $disponibilidad = collect(self::getDisponibilidad());
+        $mesAnio = $fecha ? Carbon::parse($fecha)->format('Y-m') : Carbon::now()->format('Y-m');
+        
+        $doctorDisponibilidad = $disponibilidad->where('doctor_id', $doctorId)
+                                             ->where('mes_anio', $mesAnio)
+                                             ->first();
+        
+        return $doctorDisponibilidad ? $doctorDisponibilidad['turnos'] : [];
     }
 
     public static function getRoles()
@@ -432,5 +450,24 @@ class DataService
     public static function getNombreCompleto($paciente)
     {
         return $paciente['nombre'] . ' ' . $paciente['apellidos'];
+    }
+
+    public static function getHorariosDisponibles($doctorId, $fecha)
+    {
+        $turnos = self::getTurnosDoctor($doctorId, $fecha);
+        $horariosDisponibles = [];
+        
+        foreach ($turnos as $turno) {
+            $horarios = self::getHorariosTurno($turno);
+            $horariosDisponibles[$turno] = $horarios;
+        }
+        
+        return $horariosDisponibles;
+    }
+
+    public static function esDiaLaboral($fecha)
+    {
+        $diaSemana = Carbon::parse($fecha)->dayOfWeek;
+        return $diaSemana >= 1 && $diaSemana <= 5; // Lunes a Viernes
     }
 }

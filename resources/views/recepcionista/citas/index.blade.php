@@ -73,7 +73,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($citas as $cita)
+                        @forelse($citasTransformadas as $cita)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900">{{ $cita['paciente']['nombre'] }} {{ $cita['paciente']['apellidos'] }}</div>
@@ -82,13 +82,13 @@
                                     <div class="text-sm text-gray-900">{{ $cita['doctor']['name'] }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $cita['doctor']['especialidad'] ?? 'Medicina General' }}</div>
+                                    <div class="text-sm text-gray-900">{{ $cita['doctor']['especialidad'] }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">{{ \Carbon\Carbon::parse($cita['fecha'])->format('d/m/Y') }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $cita['hora'] }}</div>
+                                    <div class="text-sm text-gray-900">{{ \Carbon\Carbon::parse($cita['hora'])->format('g:i A') }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
@@ -108,6 +108,7 @@
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                 </svg>
+                                                Editar
                                             </a>
                                         </div>
                                     @endif
@@ -124,7 +125,7 @@
                 </table>
             </div>
             <div class="mt-4 text-sm text-gray-500">
-                Mostrando {{ count($citas) }} {{ Str::plural('registro', count($citas)) }}
+                Mostrando {{ count($citasTransformadas) }} {{ Str::plural('registro', count($citasTransformadas)) }}
             </div>
         </div>
     </div>

@@ -18,11 +18,7 @@
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['total_usuarios'] }}</p>
                     <p class="text-sm text-gray-500">En el sistema</p>
                 </div>
-                <div class="text-green-600">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                </div>
+                <img src="{{ asset('icons/usuario.png') }}" alt="Ícono de citas" class="w-16 h-16 inline-block">
             </div>
         </div>
 
@@ -33,11 +29,7 @@
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['doctores'] }}</p>
                     <p class="text-sm text-gray-500">Activos</p>
                 </div>
-                <div class="text-green-600">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                </div>
+                <img src="{{ asset('icons/medico.png') }}" alt="Ícono de citas" class="w-18 h-18 inline-block">
             </div>
         </div>
 
@@ -63,11 +55,7 @@
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['horarios_configurados'] }}</p>
                     <p class="text-sm text-gray-500">Próximos días</p>
                 </div>
-                <div class="text-green-600">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
+                <img src="{{ asset('icons/definir_horario.png') }}" alt="Ícono de citas" class="w-16 h-16 inline-block">
             </div>
         </div>
     </div>
@@ -108,16 +96,12 @@
             <div class="space-y-2">
                 <a href="{{ route('admin.usuarios.crear') }}" 
                    class="flex items-center w-full px-4 py-2 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                    </svg>
+                    <img src="{{ asset('icons/usuario_agregar.png') }}" alt="Ícono de citas" class="w-8 h-8 mr-4 inline-block">
                     Crear nuevo usuario
                 </a>
                 <a href="{{ route('admin.disponibilidad.index') }}" 
                    class="flex items-center w-full px-4 py-2 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
+                    <img src="{{ asset('icons/definir_horario.png') }}" alt="Ícono de citas" class="w-8 h-8 mr-4 inline-block">
                     Configurar disponibilidad médica
                 </a>
                 

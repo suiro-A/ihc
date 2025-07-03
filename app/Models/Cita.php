@@ -13,48 +13,39 @@ class Cita extends Model
     protected $primaryKey = 'id_cita'; // si tu PK es id_cita
 
     protected $fillable = [
-        'paciente_id',
-        'doctor_id',
-        'fecha',
-        'hora',
+        'id_historial',
+        'id_medico',
+        'id_especialidad',
         'motivo',
         'estado',
-        'observaciones',
+        'id_hora',
+        'fecha',
     ];
 
     protected function casts(): array
     {
         return [
             'fecha' => 'date',
-            'hora' => 'datetime:H:i',
         ];
     }
 
-    public function paciente()
+    public function historial()
     {
-        return $this->belongsTo(Paciente::class);
+        return $this->belongsTo(HistorialClinico::class, 'id_historial');
     }
 
-    public function doctor()
+    public function medico()
     {
-        return $this->belongsTo(User::class, 'doctor_id');
+        return $this->belongsTo(Medico::class, 'id_medico', 'id_usuario');
     }
 
-    public function historialClinico()
+    public function especialidad()
     {
-        return $this->hasOne(HistorialClinico::class);
+        return $this->belongsTo(Especialidad::class, 'id_especialidad');
     }
 
-    public function scopeHoy($query)
+    public function horaConsulta()
     {
-        return $query->whereDate('fecha', today());
-    }
-
-    public function scopeProximas($query)
-    {
-        return $query->where('fecha', '>=', today())
-                    ->where('estado', 'agendada')
-                    ->orderBy('fecha')
-                    ->orderBy('hora');
+        return $this->belongsTo(HoraConsulta::class, 'id_hora');
     }
 }

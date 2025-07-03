@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -74,34 +75,53 @@ class AdminController extends Controller
       'password' => 'required|confirmed|min:6',
     ]);
 
-    // Crear nuevo usuario
-    $usuario = new Usuario();
-    $usuario->nombres = $request->input('nombres');
-    $usuario->apellidos = $request->input('apellidos');
-    $usuario->telefono = $request->input('telefono');
-    $usuario->correo = $request->input('email');
-    $usuario->clave = Hash::make($request->input('password')); // Encriptar clave
-    $usuario->rol = $request->input('role');
-    $usuario->estado = true;
-    
-    $usuario->save();
+    try {
+        // Crear nuevo usuario
+        $usuario = new Usuario();
+        $usuario->nombres = $request->input('nombres');
+        $usuario->apellidos = $request->input('apellidos');
+        $usuario->telefono = $request->input('telefono');
+        $usuario->correo = $request->input('email');
+        $usuario->clave = Hash::make($request->input('password')); // Encriptar clave
+        $usuario->rol = $request->input('role');
+        $usuario->estado = true;
+        
+        $usuario->save();
 
-    // Guardar información profesional si es doctor
-    if ($usuario->isDoctor()) {
-      $request->validate([
-        'especialidad' => 'required',
-        'colegiatura' => 'required|numeric|max:9999999999',
-      ]);
+        // Guardar información profesional si es doctor
+        if ($usuario->isDoctor()) {
+            $request->validate([
+                'especialidad' => 'required',
+                'colegiatura' => 'required|numeric|max:9999999999',
+            ]);
 
-      $medico = new Medico();
-      $medico->id_usuario = $usuario->id_usuario;
-      $medico->especialidad = $request->input('especialidad');
-      $medico->num_colegiatura = $request->input('colegiatura');
-      $medico->save();
+            $medico = new Medico();
+            $medico->id_usuario = $usuario->id_usuario;
+            $medico->especialidad = $request->input('especialidad');
+            $medico->num_colegiatura = $request->input('colegiatura');
+            $medico->save();
+        }
+        
+        // Mensaje de éxito con SweetAlert
+        session()->flash('swal', [
+            'title' => "¡Usuario Creado!",
+            'text' => "El usuario ha sido creado exitosamente",
+            'icon' => "success"
+        ]);
+
+        return redirect()->route('admin.usuarios.index');
+
+    } catch (\Exception $e) {
+        \Log::error('Error al crear usuario: ' . $e->getMessage());
+        
+        session()->flash('swal', [
+            'title' => "Error",
+            'text' => "No se pudo crear el usuario. Inténtalo nuevamente.",
+            'icon' => "error"
+        ]);
+
+        return back()->withInput();
     }
-    
-    return redirect()->route('admin.usuarios.index')
-      ->with('success', 'Usuario creado exitosamente.');
   }
 
   public function editarUsuario($id)
@@ -135,33 +155,52 @@ class AdminController extends Controller
       'colegiatura' => 'nullable|string|max:10',
     ]);
 
-    $usuario->nombres = $request->input('nombres');
-    $usuario->apellidos = $request->input('apellidos');
-    $usuario->telefono = $request->input('telefono');
-    $usuario->correo = $request->input('email');
-    $usuario->rol = $request->input('role');
+    try {
+        $usuario->nombres = $request->input('nombres');
+        $usuario->apellidos = $request->input('apellidos');
+        $usuario->telefono = $request->input('telefono');
+        $usuario->correo = $request->input('email');
+        $usuario->rol = $request->input('role');
 
-    $usuario->save();
+        $usuario->save();
 
-    // Si el usuario es doctor, guardar o actualizar su info profesional
-    if ($usuario->isDoctor()) {
-      // Crear o actualizar registro de médico
-      $medico = Medico::updateOrCreate(
-        ['id_usuario' => $usuario->id_usuario],
-        [
-          'especialidad' => $request->input('especialidad'),
-          'num_colegiatura' => $request->input('colegiatura'),
-        ]
-      );
-    } else {
-      // Eliminar si ya no es doctor
-      if ($usuario->medico) {
-        $usuario->medico->delete();
-      }
+        // Si el usuario es doctor, guardar o actualizar su info profesional
+        if ($usuario->isDoctor()) {
+            // Crear o actualizar registro de médico
+            $medico = Medico::updateOrCreate(
+                ['id_usuario' => $usuario->id_usuario],
+                [
+                    'especialidad' => $request->input('especialidad'),
+                    'num_colegiatura' => $request->input('colegiatura'),
+                ]
+            );
+        } else {
+            // Eliminar si ya no es doctor
+            if ($usuario->medico) {
+                $usuario->medico->delete();
+            }
+        }
+
+        // Mensaje de éxito con SweetAlert
+        session()->flash('swal', [
+            'title' => "¡Usuario Actualizado!",
+            'text' => "El usuario ha sido actualizado exitosamente",
+            'icon' => "success"
+        ]);
+
+        return redirect()->route('admin.usuarios.index');
+
+    } catch (\Exception $e) {
+        \Log::error('Error al actualizar usuario: ' . $e->getMessage());
+        
+        session()->flash('swal', [
+            'title' => "Error",
+            'text' => "No se pudo actualizar el usuario. Inténtalo nuevamente.",
+            'icon' => "error"
+        ]);
+
+        return back()->withInput();
     }
-
-    return redirect()->route('admin.usuarios.index')
-      ->with('success', 'Usuario actualizado exitosamente.');
   }
 
   public function toggleUsuario($id)
@@ -169,41 +208,131 @@ class AdminController extends Controller
     $usuario = Usuario::findOrFail($id);
 
     if (!$usuario) {
-      abort(404, 'Usuario no encontrado');
+        abort(404, 'Usuario no encontrado');
     }
 
-    $usuario->estado = !$usuario->estado;
+    try {
+        $usuario->estado = !$usuario->estado;
+        $usuario->save();
 
-    $usuario->save();
+        $estado = $usuario->estado ? 'activado' : 'desactivado';
 
-    $estado = !$usuario->estado ? 'desactivado' : 'activado';
+        // Mensaje de éxito con SweetAlert
+        session()->flash('swal', [
+            'title' => "¡Usuario " . ucfirst($estado) . "!",
+            'text' => "El usuario ha sido " . $estado . " exitosamente",
+            'icon' => "success"
+        ]);
 
-    return back()->with('success', "Usuario {$estado} exitosamente.");
+        return back();
+
+    } catch (\Exception $e) {
+        \Log::error('Error al cambiar estado de usuario: ' . $e->getMessage());
+        
+        session()->flash('swal', [
+            'title' => "Error",
+            'text' => "No se pudo cambiar el estado del usuario. Inténtalo nuevamente.",
+            'icon' => "error"
+        ]);
+
+        return back();
+    }
   }
 
   public function disponibilidad()
   {
-    $doctores = Usuario::with(['medico.especialidadNombre'])
-      ->where('rol', Usuario::ROL_DOCTOR)
-      ->where('estado', true)
-      ->orderBy('nombres')
-      ->get();
+      $doctores = Usuario::whereHas('medico')
+          ->where('estado', 1) 
+          ->with(['medico.especialidadNombre'])
+          ->orderBy('nombres')
+          ->get();
 
-    return view('admin.disponibilidad.index', compact('doctores'));
+      $disponibilidades = DB::table('disponibilidad')
+          ->join('usuario', 'disponibilidad.id_usuario', '=', 'usuario.id_usuario')
+          ->join('medico', 'usuario.id_usuario', '=', 'medico.id_usuario')
+          ->join('especialidad', 'medico.especialidad', '=', 'especialidad.id_especialidad')
+          ->join('turno', 'disponibilidad.id_turno', '=', 'turno.id_turno')
+          ->select(
+              'disponibilidad.*',
+              'usuario.nombres',
+              'usuario.apellidos',
+              'especialidad.nombre as especialidad',
+              'turno.descripcion as turno'
+          )
+          ->orderBy('disponibilidad.anio', 'desc')
+          ->orderBy('disponibilidad.mes', 'desc')
+          ->get();
+
+      return view('admin.disponibilidad.index', compact('doctores', 'disponibilidades'));
   }
 
   public function guardarDisponibilidad(Request $request)
   {
-    $request->validate([
-      'doctor_id' => 'required',
-      'horarios' => 'required|array',
-      'horarios.*.fecha' => 'required|date',
-      'horarios.*.hora_inicio' => 'required',
-      'horarios.*.hora_fin' => 'required',
-    ]);
+      $request->validate([
+          'doctor_id' => 'required|exists:medico,id_usuario',
+          'mes_anio' => 'required|date_format:Y-m',
+          'turnos' => 'required|array|min:1',
+          'turnos.*' => 'in:manana,tarde',
+      ]);
 
-    // En un sistema real, aquí guardaríamos en la base de datos
+      try {
+          // Separar año y mes
+          [$anio, $mes] = explode('-', $request->mes_anio);
 
-    return back()->with('success', 'Disponibilidad guardada exitosamente.');
+          // Obtener los IDs de turno según el nombre
+          $turnos = \DB::table('turno')->whereIn('descripcion', $request->turnos)->get();
+          
+          $horariosProcesados = 0;
+
+          foreach ($turnos as $turno) {
+              // Verificar si ya existe para evitar duplicados
+              $existe = \DB::table('disponibilidad')
+                  ->where('id_usuario', $request->doctor_id)
+                  ->where('anio', $anio)
+                  ->where('mes', $mes)
+                  ->where('id_turno', $turno->id_turno)
+                  ->exists();
+
+              if (!$existe) {
+                  \DB::table('disponibilidad')->insert([
+                      'id_usuario' => $request->doctor_id,
+                      'anio' => $anio,
+                      'mes' => $mes,
+                      'id_turno' => $turno->id_turno,
+                      'created_at' => now(),
+                      'updated_at' => now(),
+                  ]);
+                  $horariosProcesados++;
+              }
+          }
+
+          // Mensaje de éxito con SweetAlert
+          if ($horariosProcesados > 0) {
+              session()->flash('swal', [
+                  'title' => "¡Horario Definido!",
+                  'text' => "La disponibilidad ha sido configurada correctamente",
+                  'icon' => "success"
+              ]);
+          } else {
+              session()->flash('swal', [
+                  'title' => "¡Información!",
+                  'text' => "Los horarios seleccionados ya estaban configurados",
+                  'icon' => "info"
+              ]);
+          }
+
+          return back();
+
+      } catch (\Exception $e) {
+          \Log::error('Error al guardar disponibilidad: ' . $e->getMessage());
+          
+          session()->flash('swal', [
+              'title' => "Error",
+              'text' => "No se pudo guardar la disponibilidad. Inténtalo nuevamente.",
+              'icon' => "error"
+          ]);
+
+          return back();
+      }
   }
 }

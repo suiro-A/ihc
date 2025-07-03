@@ -11,28 +11,18 @@ class HistorialClinico extends Model
 
     protected $table = 'historial_clinico';
     protected $primaryKey = 'id_historial';
-    protected $fillable = ['id_paciente'];
 
-    protected function casts(): array
-    {
-        return [
-            'fecha_consulta' => 'datetime',
-            'receta_medica' => 'array',
-        ];
-    }
+    protected $fillable = [
+        'id_paciente',
+    ];
 
     public function paciente()
     {
-        return $this->belongsTo(Paciente::class);
+        return $this->belongsTo(Paciente::class, 'id_paciente');
     }
 
-    public function doctor()
+    public function citas()
     {
-        return $this->belongsTo(User::class, 'doctor_id');
-    }
-
-    public function cita()
-    {
-        return $this->belongsTo(Cita::class);
+        return $this->hasMany(Cita::class, 'id_historial');
     }
 }

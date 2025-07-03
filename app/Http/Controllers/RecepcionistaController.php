@@ -12,6 +12,8 @@ use App\Models\HistorialClinico;
 use App\Models\Alergia;
 use App\Models\EnfermedadCronica;
 use App\Models\Medicamento;
+use App\Models\HoraConsulta;
+use App\Models\Cita;
 
 class RecepcionistaController extends Controller
 {
@@ -53,7 +55,6 @@ class RecepcionistaController extends Controller
 
 public function guardarPaciente(Request $request)
 {
-    
     $request->validate([
         'nombres' => 'required|string|max:40',
         'apellidos' => 'required|string|max:40',
@@ -70,64 +71,77 @@ public function guardarPaciente(Request $request)
         'medicamentos.*' => 'exists:medicamento,id_medicamento',
     ]);
 
-    $paciente = Paciente::create([
-        'nombres' => $request->nombres,
-        'apellidos' => $request->apellidos,
-        'dni' => $request->dni,
-        'fecha_nac' => $request->fecha_nacimiento,
-        'sexo' => $request->genero === 'masculino' ? 1 : 0,
-        'telefono' => $request->telefono,
-        'correo' => $request->email,
-    ]);
+    try {
+        $paciente = Paciente::create([
+            'nombres' => $request->nombres,
+            'apellidos' => $request->apellidos,
+            'dni' => $request->dni,
+            'fecha_nac' => $request->fecha_nacimiento,
+            'sexo' => $request->genero === 'masculino' ? 1 : 0,
+            'telefono' => $request->telefono,
+            'correo' => $request->email,
+        ]);
 
-    session()->flash('pacienteCreate', [
-        'title' => "¡Bien hecho!",
-        'text' => "Paciente creado correctamente",
-        'icon' => "success"
-    ]);
+        // Crear historial clínico
+        $historial = HistorialClinico::create([
+            'id_paciente' => $paciente->id_paciente,
+        ]);
 
-    // Crear historial clínico
-    $historial = HistorialClinico::create([
-        'id_paciente' => $paciente->id_paciente,
-    ]);
-
-    // Guardar todas las alergias seleccionadas
-    if ($request->has('alergias')) {
-        foreach ($request->alergias as $id_alergia) {
-            \DB::table('historial_alergia')->insert([
-                'id_historial' => $historial->id_historial,
-                'id_alergia' => $id_alergia,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        // Guardar todas las alergias seleccionadas
+        if ($request->has('alergias')) {
+            foreach ($request->alergias as $id_alergia) {
+                \DB::table('historial_alergia')->insert([
+                    'id_historial' => $historial->id_historial,
+                    'id_alergia' => $id_alergia,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
-    }
 
-    // Guardar todas las enfermedades crónicas seleccionadas
-    if ($request->has('cronicas')) {
-        foreach ($request->cronicas as $id_enfermedad) {
-            \DB::table('historial_enfermedad')->insert([
-                'id_historial' => $historial->id_historial,
-                'id_enfermedad' => $id_enfermedad,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        // Guardar todas las enfermedades crónicas seleccionadas
+        if ($request->has('cronicas')) {
+            foreach ($request->cronicas as $id_enfermedad) {
+                \DB::table('historial_enfermedad')->insert([
+                    'id_historial' => $historial->id_historial,
+                    'id_enfermedad' => $id_enfermedad,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
-    }
 
-    // Guardar todos los medicamentos seleccionados
-    if ($request->has('medicamentos')) {
-        foreach ($request->medicamentos as $id_medicamento) {
-            \DB::table('medicacion_actual')->insert([
-                'id_historial' => $historial->id_historial,
-                'id_medicamento' => $id_medicamento,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        // Guardar todos los medicamentos seleccionados
+        if ($request->has('medicamentos')) {
+            foreach ($request->medicamentos as $id_medicamento) {
+                \DB::table('medicacion_actual')->insert([
+                    'id_historial' => $historial->id_historial,
+                    'id_medicamento' => $id_medicamento,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
-    }
 
-    return redirect()->route('recepcionista.citas.agendar');
+        session()->flash('pacienteCreate', [
+            'title' => "¡Bien hecho!",
+            'text' => "Paciente creado correctamente",
+            'icon' => "success"
+        ]);
+
+        return redirect()->route('recepcionista.citas.agendar');
+
+    } catch (\Exception $e) {
+        \Log::error('Error al crear paciente: ' . $e->getMessage());
+        
+        session()->flash('swal', [
+            'title' => "Error",
+            'text' => "No se pudo crear el paciente. Inténtalo nuevamente.",
+            'icon' => "error"
+        ]);
+
+        return back()->withInput();
+    }
 }
 
 public function buscarPacientes(Request $request)
@@ -221,97 +235,133 @@ public function buscarPacientes(Request $request)
             'medicamentos.*' => 'exists:medicamento,id_medicamento',
         ]);
 
-        $paciente->update([
-            'nombres' => $request->nombres,
-            'apellidos' => $request->apellidos,
-            'dni' => $request->dni,
-            'fecha_nac' => $request->fecha_nacimiento,
-            'sexo' => $request->genero === 'masculino' ? 1 : 0,
-            'telefono' => $request->telefono,
-            'correo' => $request->email,
-            'observaciones' => $request->observaciones,
-        ]);
+        try {
+            $paciente->update([
+                'nombres' => $request->nombres,
+                'apellidos' => $request->apellidos,
+                'dni' => $request->dni,
+                'fecha_nac' => $request->fecha_nacimiento,
+                'sexo' => $request->genero === 'masculino' ? 1 : 0,
+                'telefono' => $request->telefono,
+                'correo' => $request->email,
+                'observaciones' => $request->observaciones,
+            ]);
 
-        // Actualizar historial clínico y relaciones
-        $historial = \App\Models\HistorialClinico::where('id_paciente', $paciente->id_paciente)->first();
+            // Actualizar historial clínico y relaciones
+            $historial = \App\Models\HistorialClinico::where('id_paciente', $paciente->id_paciente)->first();
 
-        if ($historial) {
-            // Alergias
-            \DB::table('historial_alergia')->where('id_historial', $historial->id_historial)->delete();
-            if ($request->has('alergias')) {
-                foreach ($request->alergias as $id_alergia) {
-                    \DB::table('historial_alergia')->insert([
-                        'id_historial' => $historial->id_historial,
-                        'id_alergia' => $id_alergia,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+            if ($historial) {
+                // Alergias
+                \DB::table('historial_alergia')->where('id_historial', $historial->id_historial)->delete();
+                if ($request->has('alergias')) {
+                    foreach ($request->alergias as $id_alergia) {
+                        \DB::table('historial_alergia')->insert([
+                            'id_historial' => $historial->id_historial,
+                            'id_alergia' => $id_alergia,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+                // Enfermedades crónicas
+                \DB::table('historial_enfermedad')->where('id_historial', $historial->id_historial)->delete();
+                if ($request->has('cronicas')) {
+                    foreach ($request->cronicas as $id_enfermedad) {
+                        \DB::table('historial_enfermedad')->insert([
+                            'id_historial' => $historial->id_historial,
+                            'id_enfermedad' => $id_enfermedad,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+                // Medicamentos
+                \DB::table('medicacion_actual')->where('id_historial', $historial->id_historial)->delete();
+                if ($request->has('medicamentos')) {
+                    foreach ($request->medicamentos as $id_medicamento) {
+                        \DB::table('medicacion_actual')->insert([
+                            'id_historial' => $historial->id_historial,
+                            'id_medicamento' => $id_medicamento,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
                 }
             }
-            // Enfermedades crónicas
-            \DB::table('historial_enfermedad')->where('id_historial', $historial->id_historial)->delete();
-            if ($request->has('cronicas')) {
-                foreach ($request->cronicas as $id_enfermedad) {
-                    \DB::table('historial_enfermedad')->insert([
-                        'id_historial' => $historial->id_historial,
-                        'id_enfermedad' => $id_enfermedad,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-            }
-            // Medicamentos
-            \DB::table('medicacion_actual')->where('id_historial', $historial->id_historial)->delete();
-            if ($request->has('medicamentos')) {
-                foreach ($request->medicamentos as $id_medicamento) {
-                    \DB::table('medicacion_actual')->insert([
-                        'id_historial' => $historial->id_historial,
-                        'id_medicamento' => $id_medicamento,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-            }
+
+            session()->flash('swal', [
+                'title' => "¡Bien hecho!",
+                'text' => "Paciente actualizado correctamente",
+                'icon' => "success"
+            ]);
+
+            return redirect()->route('recepcionista.pacientes.buscar');
+
+        } catch (\Exception $e) {
+            \Log::error('Error al actualizar paciente: ' . $e->getMessage());
+            
+            session()->flash('swal', [
+                'title' => "Error",
+                'text' => "No se pudo actualizar el paciente. Inténtalo nuevamente.",
+                'icon' => "error"
+            ]);
+
+            return back()->withInput();
         }
-
-        session()->flash('swal', [
-            'title' => "¡Bien hecho!",
-            'text' => "Paciente actualizado correctamente",
-            'icon' => "success"
-        ]);
-        return redirect()->route('recepcionista.pacientes.buscar');
     }
 
     public function gestionarCitas(Request $request)
     {
         $estado = $request->input('estado', 'todas');
         $buscar = $request->input('buscar');
-        $citas = collect(\App\Services\DataService::getCitas());
+        
+        // Obtener citas de la base de datos con relaciones
+        $query = Cita::with([
+            'historial.paciente',
+            'medico.usuario', 
+            'especialidad',
+            'horaConsulta'
+        ]);
 
         // Filtrar por estado
         if ($estado !== 'todas') {
-            $citas = $citas->where('estado', $estado);
+            $query->where('estado', $estado);
         }
-
-        // Enriquecer con datos de pacientes y doctores
-        $citas = $citas->map(function ($cita) {
-            $cita['paciente'] = \App\Services\DataService::findPaciente($cita['paciente_id']);
-            $cita['doctor'] = \App\Services\DataService::findUser($cita['doctor_id']);
-            return $cita;
-        });
 
         // Filtrar por búsqueda de paciente
         if ($buscar) {
-            $citas = $citas->filter(function ($cita) use ($buscar) {
-                $nombreCompleto = strtolower($cita['paciente']['nombre'] . ' ' . $cita['paciente']['apellidos']);
-                return str_contains(strtolower($cita['paciente']['nombre']), strtolower($buscar))
-                    || str_contains(strtolower($cita['paciente']['apellidos']), strtolower($buscar))
-                    || str_contains($nombreCompleto, strtolower($buscar));
+            $query->whereHas('historial.paciente', function($q) use ($buscar) {
+                $q->where('nombres', 'LIKE', "%{$buscar}%")
+                  ->orWhere('apellidos', 'LIKE', "%{$buscar}%")
+                  ->orWhere('dni', 'LIKE', "%{$buscar}%");
             });
         }
 
-        
-        return view('recepcionista.citas.index', compact('citas'));
+        $citas = $query->orderBy('fecha', 'desc')
+                      ->orderBy('id_hora', 'asc')
+                      ->get();
+
+        // Transformar los datos para la vista
+        $citasTransformadas = $citas->map(function ($cita) {
+            return [
+                'id' => $cita->id_cita,
+                'paciente' => [
+                    'nombre' => $cita->historial->paciente->nombres,
+                    'apellidos' => $cita->historial->paciente->apellidos,
+                    'dni' => $cita->historial->paciente->dni,
+                ],
+                'doctor' => [
+                    'name' => $cita->medico->usuario->nombres . ' ' . $cita->medico->usuario->apellidos,
+                    'especialidad' => $cita->especialidad->nombre ?? 'Medicina General',
+                ],
+                'fecha' => $cita->fecha,
+                'hora' => $cita->horaConsulta->hora_inicio,
+                'estado' => $cita->estado,
+                'motivo' => $cita->motivo,
+            ];
+        });
+
+        return view('recepcionista.citas.index', compact('citasTransformadas'));
     }
 
     public function agendarCita(Request $request)
@@ -326,7 +376,23 @@ public function buscarPacientes(Request $request)
         // Obtener médicos con usuario y especialidad
         $doctores = \App\Models\Medico::with(['usuario', 'especialidadNombre'])->get();
 
-        return view('recepcionista.citas.agendar', compact('pacientes', 'paciente', 'doctores'));
+        // Obtener disponibilidades para pasar a la vista
+        $disponibilidades = \DB::table('disponibilidad')
+            ->join('turno', 'disponibilidad.id_turno', '=', 'turno.id_turno')
+            ->join('medico', 'disponibilidad.id_usuario', '=', 'medico.id_usuario')
+            ->select('disponibilidad.*', 'turno.descripcion', 'turno.hora_inicio', 'turno.hora_fin')
+            ->get()
+            ->groupBy('id_usuario');
+
+        // Obtener citas ya agendadas
+        $citasExistentes = \DB::table('cita')
+            ->join('hora_consulta', 'cita.id_hora', '=', 'hora_consulta.id_hora')
+            ->where('cita.estado', '!=', 'cancelada')
+            ->select('cita.id_medico', 'cita.fecha', 'hora_consulta.hora_inicio')
+            ->get()
+            ->groupBy(['id_medico', 'fecha']);
+
+        return view('recepcionista.citas.agendar', compact('pacientes', 'paciente', 'doctores', 'disponibilidades', 'citasExistentes'));
     }
 
     public function guardarCita(Request $request)
@@ -339,56 +405,200 @@ public function buscarPacientes(Request $request)
             'hora' => 'required'
         ]);
 
-        // Aquí puedes crear la cita
-        \App\Models\Cita::create([
-            'id_paciente' => $request->paciente_id,
-            'id_doctor' => $request->doctor_id,
-            'motivo' => $request->motivo,
-            'fecha' => $request->fecha,
-            'hora' => $request->hora,
-        ]);
+        try {
+            // Obtener el historial clínico del paciente
+            $historial = HistorialClinico::where('id_paciente', $request->paciente_id)->first();
+            
+            if (!$historial) {
+                return back()->withErrors(['error' => 'El paciente no tiene historial clínico']);
+            }
 
-        return redirect()->route('recepcionista.citas.index')->with('success', 'Cita agendada correctamente');
+            // Obtener el médico y su especialidad
+            $medico = \App\Models\Medico::find($request->doctor_id);
+            
+            if (!$medico) {
+                return back()->withErrors(['error' => 'Médico no encontrado']);
+            }
+            
+            // Buscar o crear el horario de consulta
+            $horaInicio = $request->hora;
+            $horaFin = \Carbon\Carbon::parse($horaInicio)->addMinutes(30)->format('H:i');
+            
+            $horaConsulta = HoraConsulta::firstOrCreate([
+                'hora_inicio' => $horaInicio,
+                'hora_fin' => $horaFin
+            ]);
+
+            // Verificar que no haya conflicto de horarios
+            $citaExistente = \App\Models\Cita::where('id_medico', $request->doctor_id)
+                ->where('fecha', $request->fecha)
+                ->where('id_hora', $horaConsulta->id_hora)
+                ->where('estado', '!=', 'cancelada')
+                ->exists();
+
+            if ($citaExistente) {
+                return back()->withErrors(['error' => 'Ya existe una cita para ese horario']);
+            }
+
+            // Crear la cita
+            $cita = \App\Models\Cita::create([
+                'id_historial' => $historial->id_historial,
+                'id_medico' => $request->doctor_id,
+                'id_especialidad' => $medico->especialidad,
+                'motivo' => $request->motivo,
+                'estado' => 'agendada',
+                'id_hora' => $horaConsulta->id_hora,
+                'fecha' => $request->fecha,
+            ]);
+
+            // Flash message para cita creada exitosamente
+            session()->flash('swal', [
+                'title' => "¡Cita Agendada!",
+                'text' => "La cita ha sido agendada correctamente",
+                'icon' => "success"
+            ]);
+
+            return redirect()->route('recepcionista.citas.index');
+
+        } catch (\Exception $e) {
+            \Log::error('Error al guardar cita: ' . $e->getMessage());
+            
+            session()->flash('swal', [
+                'title' => "Error",
+                'text' => "No se pudo agendar la cita. Inténtalo nuevamente.",
+                'icon' => "error"
+            ]);
+
+            return back()->withInput();
+        }
     }
 
     public function editarCita($id)
     {
-        $cita = DataService::findCita($id);
-        
-        if (!$cita) {
-            abort(404, 'Cita no encontrada');
-        }
-        
-        $paciente = DataService::findPaciente($cita['paciente_id']);
-        $doctor = DataService::findUser($cita['doctor_id']);
-        $cita['paciente'] = $paciente;
-        $cita['doctor'] = $doctor;
-        
-        $doctores = DataService::getUsersByRole('doctor')->where('is_active', true);
-        
-        return view('recepcionista.citas.editar', compact('cita', 'doctores'));
+        // Obtener la cita desde la base de datos con todas las relaciones
+        $citaDB = Cita::with([
+            'historial.paciente',
+            'medico.usuario',
+            'especialidad',
+            'horaConsulta'
+        ])->findOrFail($id);
+
+        // Transformar los datos para la vista
+        $cita = [
+            'id' => $citaDB->id_cita,
+            'paciente' => [
+                'nombre' => $citaDB->historial->paciente->nombres,
+                'apellidos' => $citaDB->historial->paciente->apellidos,
+                'dni' => $citaDB->historial->paciente->dni,
+            ],
+            'doctor_id' => $citaDB->id_medico,
+            'fecha' => $citaDB->fecha->format('Y-m-d'),
+            'hora' => $citaDB->horaConsulta->hora_inicio,
+            'motivo' => $citaDB->motivo,
+            'estado' => $citaDB->estado,
+        ];
+
+        // Obtener lista de doctores para el select
+        $doctores = collect(\App\Models\Medico::with(['usuario', 'especialidadNombre'])->get())->map(function($medico) {
+            return [
+                'id' => $medico->id_usuario,
+                'name' => $medico->usuario->nombres . ' ' . $medico->usuario->apellidos,
+                'especialidad' => $medico->especialidadNombre->nombre ?? 'Medicina General'
+            ];
+        });
+
+        // Obtener disponibilidades para pasar a la vista
+        $disponibilidades = \DB::table('disponibilidad')
+            ->join('turno', 'disponibilidad.id_turno', '=', 'turno.id_turno')
+            ->join('medico', 'disponibilidad.id_usuario', '=', 'medico.id_usuario')
+            ->select('disponibilidad.*', 'turno.descripcion', 'turno.hora_inicio', 'turno.hora_fin')
+            ->get()
+            ->groupBy('id_usuario');
+
+        // Obtener citas ya agendadas
+        $citasExistentes = \DB::table('cita')
+            ->join('hora_consulta', 'cita.id_hora', '=', 'hora_consulta.id_hora')
+            ->where('cita.estado', '!=', 'cancelada')
+            ->select('cita.id_cita', 'cita.id_medico', 'cita.fecha', 'hora_consulta.hora_inicio')
+            ->get()
+            ->groupBy(['id_medico', 'fecha']);
+
+        return view('recepcionista.citas.editar', compact('cita', 'doctores', 'disponibilidades', 'citasExistentes'));
     }
 
-    public function actualizarCita(Request $request, $id)
+        public function actualizarCita(Request $request, $id)
     {
-        $cita = DataService::findCita($id);
-        
-        if (!$cita) {
-            abort(404, 'Cita no encontrada');
-        }
-        
-        $request->validate([
-            'doctor_id' => 'required',
-            'fecha' => 'required|date',
-            'hora' => 'required',
-            'motivo' => 'required|string',
-            'estado' => 'required|in:agendada,completada,cancelada',
-        ]);
+            $request->validate([
+                'doctor_id' => 'required|exists:medico,id_usuario',
+                'fecha' => 'required|date',
+                'hora' => 'required',
+                'motivo' => 'required|string',
+                'estado' => 'required|in:agendada,completada,cancelada',
+            ]);
 
-        // En un sistema real, aquí actualizaríamos en la base de datos
-        
-        return redirect()->route('recepcionista.citas.index')
-                        ->with('success', 'Cita actualizada exitosamente.');
+            try {
+                // Encontrar la cita
+                $cita = Cita::findOrFail($id);
+
+                // Buscar o crear el horario de consulta para la nueva hora
+                $horaInicio = $request->hora;
+                $horaFin = \Carbon\Carbon::parse($horaInicio)->addMinutes(30)->format('H:i');
+                
+                $horaConsulta = HoraConsulta::firstOrCreate([
+                    'hora_inicio' => $horaInicio,
+                    'hora_fin' => $horaFin
+                ]);
+
+                // Verificar que no haya conflicto de horarios (solo si cambió doctor, fecha u hora)
+                if ($cita->id_medico != $request->doctor_id || 
+                    $cita->fecha != $request->fecha || 
+                    $cita->id_hora != $horaConsulta->id_hora) {
+                    
+                    $citaExistente = Cita::where('id_medico', $request->doctor_id)
+                        ->where('fecha', $request->fecha)
+                        ->where('id_hora', $horaConsulta->id_hora)
+                        ->where('estado', '!=', 'cancelada')
+                        ->where('id_cita', '!=', $id) // Excluir la cita actual
+                        ->exists();
+
+                    if ($citaExistente) {
+                        return back()->withErrors(['error' => 'Ya existe una cita para ese horario']);
+                    }
+                }
+
+                // Obtener el médico y su especialidad
+                $medico = \App\Models\Medico::find($request->doctor_id);
+
+                // Actualizar la cita
+                $cita->update([
+                    'id_medico' => $request->doctor_id,
+                    'id_especialidad' => $medico->especialidad,
+                    'motivo' => $request->motivo,
+                    'estado' => $request->estado,
+                    'id_hora' => $horaConsulta->id_hora,
+                    'fecha' => $request->fecha,
+                ]);
+
+                // Flash message para cita actualizada exitosamente
+                session()->flash('swal', [
+                    'title' => "¡Cita Actualizada!",
+                    'text' => "La cita ha sido actualizada correctamente",
+                    'icon' => "success"
+                ]);
+
+                return redirect()->route('recepcionista.citas.index');
+
+            } catch (\Exception $e) {
+                \Log::error('Error al actualizar cita: ' . $e->getMessage());
+                
+                session()->flash('swal', [
+                    'title' => "Error",
+                    'text' => "No se pudo actualizar la cita. Inténtalo nuevamente.",
+                    'icon' => "error"
+                ]);
+
+                return back()->withInput();
+            }
     }
 
     public function cancelarCita($id)

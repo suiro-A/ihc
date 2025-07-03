@@ -85,9 +85,7 @@
                                     {{ request()->routeIs('admin.disponibilidad.*') ? 'bg-green-100 font-bold text-green-700' : '' }}"
                                 :class="open ? 'px-4 justify-start' : 'justify-center'"
                             >
-                                <span class="material-icons"
-                                    :class="open ? 'mr-3' : ''"
-                                >schedule</span>
+                                <img src="{{ asset('icons/definir_horario.png') }}" alt="Ícono de citas" class="w-10 h-10 inline-block mr-4">
                                 <span x-show="open" class="transition-all duration-200">Definir Horarios</span>
                             </a>
                         </li>
