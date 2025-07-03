@@ -24,21 +24,42 @@ class RecepcionistaController extends Controller
 
     public function dashboard()
     {
-        $citasHoy = collect(DataService::getCitasHoy());
-        
-        // Enriquecer citas con datos de pacientes y doctores
+        // Obtener citas de hoy desde la base de datos real
+        $citasHoy = Cita::with([
+            'historial.paciente',
+            'medico.usuario', 
+            'especialidad',
+            'horaConsulta'
+        ])
+        ->whereDate('fecha', Carbon::today())
+        ->orderBy('id_hora')
+        ->get();
+
+        // Transformar los datos para la vista
         $citasHoy = $citasHoy->map(function ($cita) {
-            $paciente = DataService::findPaciente($cita['paciente_id']);
-            $doctor = DataService::findUser($cita['doctor_id']);
-            $cita['paciente'] = $paciente;
-            $cita['doctor'] = $doctor;
-            return $cita;
+            return [
+                'id' => $cita->id_cita,
+                'paciente' => [
+                    'nombre' => $cita->historial->paciente->nombres,
+                    'apellidos' => $cita->historial->paciente->apellidos,
+                    'dni' => $cita->historial->paciente->dni,
+                ],
+                'doctor' => [
+                    'name' => $cita->medico->usuario->nombres . ' ' . $cita->medico->usuario->apellidos,
+                    'especialidad' => $cita->especialidad->nombre ?? 'Medicina General'
+                ],
+                'fecha' => $cita->fecha->format('Y-m-d'),
+                'hora' => $cita->horaConsulta->hora_inicio,
+                'motivo' => $cita->motivo,
+                'estado' => $cita->estado,
+            ];
         });
-        
+
+        // Calcular estadísticas reales
         $stats = [
             'citas_hoy' => $citasHoy->count(),
             'proxima_cita' => $citasHoy->where('estado', 'agendada')->first(),
-            'pacientes_registrados' => count(DataService::getPacientes()),
+            'pacientes_registrados' => \App\Models\Paciente::count(),
             'citas_confirmadas' => $citasHoy->where('estado', 'agendada')->count(),
         ];
         
