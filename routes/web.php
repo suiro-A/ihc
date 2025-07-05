@@ -21,8 +21,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/historial', [DoctorController::class, 'historial'])->name('historial.index');
         Route::get('/historial/{id}', [DoctorController::class, 'historialPaciente'])->name('historial.paciente');
         Route::get('/citas/{id}', [DoctorController::class, 'detalleCita'])->name('citas.detalle');
+        Route::post('/citas/{id}/apuntes', [DoctorController::class, 'guardarApuntes'])->name('citas.apuntes');
         Route::post('/citas/{id}/diagnostico', [DoctorController::class, 'guardarDiagnostico'])->name('citas.diagnostico');
+        Route::post('/citas/{id}/examenes', [DoctorController::class, 'guardarExamenes'])->name('citas.examenes');
         Route::post('/citas/{id}/receta', [DoctorController::class, 'guardarReceta'])->name('citas.receta');
+        Route::post('/citas/{id}/indicaciones', [DoctorController::class, 'guardarIndicaciones'])->name('citas.indicaciones');
     });
 
     // Rutas del Recepcionista

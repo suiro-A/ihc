@@ -162,12 +162,12 @@ class DoctorController extends Controller
             'estado' => $citaModel->estado,
             'paciente' => [
                 'id' => $citaModel->historial->paciente->id_paciente ?? null,
-                'nombre' => $citaModel->historial->paciente->nombres ?? 'Sin nombre',
+                'nombres' => $citaModel->historial->paciente->nombres ?? 'Sin nombre',
                 'apellidos' => $citaModel->historial->paciente->apellidos ?? 'Sin apellidos',
                 'dni' => $citaModel->historial->paciente->dni ?? 'Sin DNI',
                 'telefono' => $citaModel->historial->paciente->telefono ?? 'Sin teléfono',
-                'email' => $citaModel->historial->paciente->correo ?? null,
-                'fecha_nacimiento' => $citaModel->historial->paciente->fecha_nac ?? null,
+                'correo' => $citaModel->historial->paciente->correo ?? null,
+                'fecha_nac' => $citaModel->historial->paciente->fecha_nac ?? null,
             ]
         ];
 
@@ -184,26 +184,35 @@ class DoctorController extends Controller
         // Buscar receta médica asociada a esta cita
         $recetaActual = $diagnosticoActual;
 
-        return view('doctor.citas.detalle', compact('cita', 'historial', 'diagnosticoActual', 'recetaActual'));
+        // Datos simulados para las nuevas secciones (en un sistema real vendrían de la base de datos)
+        $apuntesActual = [];
+        $examenesActual = [];
+        $indicacionesActual = [];
+
+        // Obtener la pestaña activa (por defecto 'detalle')
+        $tab = request('tab', 'detalle');
+
+        $viewData = compact('cita', 'historial', 'diagnosticoActual', 'recetaActual', 'apuntesActual', 'examenesActual', 'indicacionesActual', 'tab');
+
+        // Si es una petición AJAX, devolver solo el contenido necesario
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'html' => view('doctor.citas.detalle', $viewData)->render()
+            ]);
+        }
+
+        return view('doctor.citas.detalle', $viewData);
     }
 
     public function guardarDiagnostico(Request $request, $citaId)
     {
-        $request->validate([
-            'diagnostico' => 'required|string',
-            'indicaciones' => 'nullable|string',
-            'medicamentos' => 'nullable|array',
-        ]);
-
-        $doctor = $this->getCurrentUser();
-        $cita = DataService::findCita($citaId);
-        
-        if (!$cita || $cita['doctor_id'] != $doctor['id']) {
-            abort(404, 'Cita no encontrada');
-        }
-
         // En un sistema real, aquí guardaríamos en la base de datos
-        // Por ahora solo simulamos el éxito
+        // Por ahora solo simulamos el éxito sin validaciones
+        
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Diagnóstico guardado exitosamente']);
+        }
         
         return redirect()->route('doctor.citas.detalle', $citaId)
                         ->with('success', 'Diagnóstico guardado exitosamente.');
@@ -211,23 +220,53 @@ class DoctorController extends Controller
 
     public function guardarReceta(Request $request, $citaId)
     {
-        $request->validate([
-            'medicamento' => 'required|string',
-            'dosis' => 'required|string',
-            'frecuencia' => 'required|string',
-            'duracion' => 'required|string',
-        ]);
+        // En un sistema real, aquí guardaríamos en la base de datos
+        // Por ahora solo simulamos el éxito sin validaciones
 
-        $doctor = $this->getCurrentUser();
-        $cita = DataService::findCita($citaId);
-
-        if (!$cita || $cita['doctor_id'] != $doctor['id']) {
-            abort(404, 'Cita no encontrada');
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Receta médica guardada exitosamente']);
         }
-
-        // Aquí guardarías la receta en la base de datos o servicio correspondiente
 
         return redirect()->route('doctor.citas.detalle', $citaId)
             ->with('success', 'Receta médica guardada exitosamente.');
+    }
+
+    public function guardarApuntes(Request $request, $citaId)
+    {
+        // En un sistema real, aquí guardaríamos en la base de datos
+        // Por ahora solo simulamos el éxito sin validaciones
+        
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Apuntes guardados exitosamente']);
+        }
+        
+        return redirect()->route('doctor.citas.detalle', ['id' => $citaId, 'tab' => 'apuntes'])
+                        ->with('success', 'Apuntes guardados exitosamente.');
+    }
+
+    public function guardarExamenes(Request $request, $citaId)
+    {
+        // En un sistema real, aquí guardaríamos en la base de datos
+        // Por ahora solo simulamos el éxito sin validaciones
+        
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Exámenes solicitados exitosamente']);
+        }
+        
+        return redirect()->route('doctor.citas.detalle', ['id' => $citaId, 'tab' => 'examenes'])
+                        ->with('success', 'Exámenes solicitados exitosamente.');
+    }
+
+    public function guardarIndicaciones(Request $request, $citaId)
+    {
+        // En un sistema real, aquí guardaríamos en la base de datos
+        // Por ahora solo simulamos el éxito sin validaciones
+        
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Indicaciones guardadas exitosamente']);
+        }
+        
+        return redirect()->route('doctor.citas.detalle', ['id' => $citaId, 'tab' => 'indicaciones'])
+                        ->with('success', 'Indicaciones guardadas exitosamente.');
     }
 }

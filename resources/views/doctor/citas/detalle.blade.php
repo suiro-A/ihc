@@ -4,250 +4,249 @@
 @php
     $tab = request('tab', 'detalle');
 @endphp
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header Simple -->
     <div class="flex items-center gap-4 mb-6">
         <a href="{{ route('doctor.agenda') }}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Volver
+            ← Volver
         </a>
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Detalle de Cita</h1>
-            <p class="text-gray-600">Información de la cita con {{ $cita['paciente']['nombre'] }} {{ $cita['paciente']['apellidos'] }}</p>
+            <h1 class="text-2xl font-bold text-gray-900">Detalle de Cita</h1>
+            <p class="text-gray-600">Información de la cita con {{ $cita['paciente']['nombres'] }} {{ $cita['paciente']['apellidos'] }}</p>
         </div>
     </div>
 
-    <!-- PESTAÑAS -->
-<div class="flex justify-start mb-6">
-    <div class="flex bg-green-100/30 rounded-lg w-full max-w-xl">
-        <a href="{{ route('doctor.citas.detalle', $cita['id']) }}?tab=detalle"
-           class="flex-1 text-center px-6 py-2 rounded-lg transition-all
-           {{ $tab == 'detalle' ? 'bg-white font-semibold text-black shadow-sm' : 'text-gray-500 hover:text-black' }}">
-            Detalles
-        </a>
-        <a href="{{ route('doctor.citas.detalle', $cita['id']) }}?tab=diagnostico"
-           class="flex-1 text-center px-6 py-2 rounded-lg transition-all
-           {{ $tab == 'diagnostico' ? 'bg-white font-semibold text-black shadow-sm' : 'text-gray-500 hover:text-black' }}">
-            Diagnóstico
-        </a>
-        <a href="{{ route('doctor.citas.detalle', $cita['id']) }}?tab=receta"
-           class="flex-1 text-center px-6 py-2 rounded-lg transition-all
-           {{ $tab == 'receta' ? 'bg-white font-semibold text-black shadow-sm' : 'text-gray-500 hover:text-black' }}">
-            Receta Médica
-        </a>
+    <!-- Pestañas Simples -->
+    <div class="mb-6">
+        <div class="flex bg-gray-100 rounded-lg p-1">
+            <a href="?tab=detalle" class="px-4 py-2 rounded-md text-sm {{ $tab == 'detalle' ? 'bg-white shadow' : '' }}">
+                Información
+            </a>
+            <a href="?tab=apuntes" class="px-4 py-2 rounded-md text-sm {{ $tab == 'apuntes' ? 'bg-white shadow' : '' }}">
+                Apuntes
+            </a>
+            <a href="?tab=diagnostico" class="px-4 py-2 rounded-md text-sm {{ $tab == 'diagnostico' ? 'bg-white shadow' : '' }}">
+                Diagnóstico
+            </a>
+            <a href="?tab=examenes" class="px-4 py-2 rounded-md text-sm {{ $tab == 'examenes' ? 'bg-white shadow' : '' }}">
+                Exámenes
+            </a>
+            <a href="?tab=receta" class="px-4 py-2 rounded-md text-sm {{ $tab == 'receta' ? 'bg-white shadow' : '' }}">
+                Receta
+            </a>
+            <a href="?tab=indicaciones" class="px-4 py-2 rounded-md text-sm {{ $tab == 'indicaciones' ? 'bg-white shadow' : '' }}">
+                Indicaciones
+            </a>
+        </div>
     </div>
-</div>
 
+    <!-- Contenido con Sidebar -->
     <div class="grid gap-6 md:grid-cols-3">
+        <!-- Contenido Principal -->
         <div class="md:col-span-2">
-            @if($tab == 'detalle')
-                <!-- DETALLE DE LA CITA -->
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-6 border-b">
-                        <h3 class="text-lg font-semibold">Información de la Cita</h3>
-                        <p class="text-gray-600">Detalles de la cita médica</p>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white rounded-lg shadow p-6">
+                @if($tab == 'detalle')
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Información de la Cita</h3>
+                    <p class="text-gray-500 mb-8">Citas programadas para hoy</p>
+                    
+                    <div class="space-y-6">
+                        <!-- Fecha y Hora -->
+                        <div class="flex justify-between items-start max-w-lg">
                             <div>
-                                <p class="text-sm font-medium text-gray-600">Fecha</p>
-                                <div class="flex items-center mt-1">
-                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <p class="text-sm text-gray-500 mb-1">Fecha</p>
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
-                                    <p>{{ \Carbon\Carbon::parse($cita['fecha'])->format('d/m/Y') }}</p>
+                                    <span class="font-medium">{{ \Carbon\Carbon::parse($cita['fecha'])->format('d/m/Y') }}</span>
                                 </div>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-600">Hora</p>
-                                <div class="flex items-center mt-1">
-                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <p class="text-sm text-gray-500 mb-1">Hora</p>
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <p>{{ $cita['hora'] }}</p>
+                                    <span class="font-medium">{{ $cita['hora'] }}</span>
                                 </div>
                             </div>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Motivo de Consulta</p>
-                            <p class="mt-1">{{ $cita['motivo'] }}</p>
+                        
+                        <!-- Motivo de Consulta -->
+                        <div class="max-w-lg">
+                            <p class="text-sm text-gray-500 mb-2">Motivo de Consulta</p>
+                            <p class="font-medium text-gray-900 mb-3">{{ $cita['motivo'] ?? 'Control mensual de tratamiento para hipertensión' }}</p>
+                            
+                            <!-- Estado de la Cita -->
+                            <div class="inline-block">
+                                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                    {{ $cita['estado'] ?? 'Agendada' }}
+                                </span>
+                            </div>
                         </div>
-                        <div>
-                            <span class="px-2 py-1 text-sm rounded-full {{ $cita['estado'] === 'agendada' ? 'bg-green-100 text-green-800' : ($cita['estado'] === 'completada' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800') }}">
-                                {{ ucfirst($cita['estado']) }}
-                            </span>
+                        
+                        <!-- Botones de Acción Centrados -->
+                        <div class="flex gap-4 justify-center pt-6">
+                            <button class="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium">
+                                Ausente
+                            </button>
+                            <a href="?tab=apuntes" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                                Iniciar Consulta
+                            </a>
                         </div>
                     </div>
-                </div>
-            @elseif($tab == 'diagnostico')
-                <!-- FORMULARIO DE DIAGNÓSTICO -->
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-6 border-b">
-                        <h3 class="text-lg font-semibold">Registrar Diagnóstico</h3>
-                        <p class="text-gray-600">Ingrese el diagnóstico para {{ $cita['paciente']['nombre'] }} {{ $cita['paciente']['apellidos'] }}</p>
-                    </div>
-                    <div class="p-6">
-                        <form action="{{ route('doctor.citas.diagnostico', $cita['id']) }}" method="POST" class="space-y-4">
-                            @csrf
+
+                @elseif($tab == 'apuntes')
+                    <h3 class="text-lg font-bold mb-4">Apuntes de la Consulta</h3>
+                    <form method="POST" action="{{ route('doctor.citas.apuntes', $cita['id']) }}">
+                        @csrf
+                        <div class="space-y-4">
                             <div>
-                                <label for="diagnostico" class="block text-sm font-medium text-gray-700">Diagnóstico</label>
-                                <textarea id="diagnostico" name="diagnostico" rows="4"
-                                          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                          placeholder="Ingrese el diagnóstico" required>{{ old('diagnostico', $diagnosticoActual['diagnostico'] ?? '') }}</textarea>
+                                <label class="block text-sm font-medium mb-1">Motivo de Consulta</label>
+                                <textarea name="motivo_consulta" rows="3" class="w-full border rounded-md p-2"></textarea>
                             </div>
                             <div>
-                                <label for="indicaciones" class="block text-sm font-medium text-gray-700">Indicaciones</label>
-                                <textarea id="indicaciones" name="indicaciones" rows="4"
-                                          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                          placeholder="Ingrese las indicaciones para el paciente">{{ old('indicaciones', $diagnosticoActual['indicaciones'] ?? '') }}</textarea>
+                                <label class="block text-sm font-medium mb-1">Síntomas</label>
+                                <textarea name="sintomas" rows="3" class="w-full border rounded-md p-2"></textarea>
                             </div>
-                            <div class="flex justify-end gap-2">
-                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-                                    Guardar Diagnóstico
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            @elseif($tab == 'receta')
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-6 border-b">
-                        <h3 class="text-2xl font-semibold">Crear Receta Médica</h3>
-                        <p class="text-gray-600">Receta para {{ $cita['paciente']['nombre'] }} {{ $cita['paciente']['apellidos'] }}</p>
-                    </div>
-                    <div class="p-6">
-                        <form id="form-receta" action="{{ route('doctor.citas.receta', $cita['id']) }}" method="POST" class="space-y-4">
-                            @csrf
-
-                            <div id="medicamentos-list">
-                                @php
-                                    $medicamentos = (isset($recetaActual) && isset($recetaActual['receta_medica'])) ? $recetaActual['receta_medica'] : [];
-                                @endphp
-                                @foreach($medicamentos as $i => $med)
-                                    <div class="bg-gray-50 border rounded-lg p-4 mb-4 medicamento-item">
-                                        <h4 class="font-semibold mb-2">Medicamento {{ $i+1 }}</h4>
-                                        <div class="mb-4">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del medicamento</label>
-                                            <div class="block w-full border-gray-300 rounded-md bg-gray-100 text-gray-700 px-3 py-2">
-                                                {{ $med['nombre'] ?? '-' }}
-                                            </div>
-                                        </div>
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Dosis</label>
-                                                <div class="block w-full border-gray-300 rounded-md bg-gray-100 text-gray-700 px-3 py-2">
-                                                    {{ $med['dosis'] ?? '-' }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia</label>
-                                                <div class="block w-full border-gray-300 rounded-md bg-gray-100 text-gray-700 px-3 py-2">
-                                                    {{ $med['frecuencia'] ?? '-' }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Duración</label>
-                                                <div class="block w-full border-gray-300 rounded-md bg-gray-100 text-gray-700 px-3 py-2">
-                                                    {{ $med['duracion'] ?? '-' }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            <div id="nuevo-medicamento-list">
-                                @if(count($medicamentos) == 0)
-                                    {{-- Si no hay medicamentos previos, muestra el primer bloque por defecto --}}
-                                    <div class="bg-gray-50 border rounded-lg p-4 mb-4 medicamento-item">
-                                        <h4 class="font-semibold mb-2">Medicamento 1</h4>
-                                        <div class="mb-4">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del medicamento</label>
-                                            <select name="medicamentos[0][nombre]" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
-                                                <option value="">Seleccione medicamento</option>
-                                                <option value="Paracetamol">Paracetamol</option>
-                                                <option value="Ibuprofeno">Ibuprofeno</option>
-                                                <option value="Amoxicilina">Amoxicilina</option>
-                                                <option value="Enalapril">Enalapril</option>
-                                            </select>
-                                        </div>
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Dosis</label>
-                                                <input type="text" name="medicamentos[0][dosis]" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Ej: 500mg" required>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia</label>
-                                                <input type="text" name="medicamentos[0][frecuencia]" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Ej: Cada 8 horas" required>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Duración</label>
-                                                <input type="text" name="medicamentos[0][duracion]" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Ej: 7 días" required>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-
-                                            <div>
-                    <button type="button" id="agregar-medicamento" class="w-full py-2 border rounded bg-gray-50 text-gray-700 font-medium hover:bg-gray-100 transition">+ Agregar otro medicamento</button>
-                </div>
-                
-                            <div class="flex justify-end gap-2 mt-4">
-                                <button type="button" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">Cancelar</button>
-                                <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700">Generar Receta</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-
-
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        let index = {{ count($medicamentos) == 0 ? 1 : count($medicamentos) }};
-                        document.getElementById('agregar-medicamento').addEventListener('click', function(e) {
-                            e.preventDefault();
-                            let html = `
-                            <div class="bg-gray-50 border rounded-lg p-4 mb-4 medicamento-item">
-                                <h4 class="font-semibold mb-2">Medicamento ${index+1}</h4>
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del medicamento</label>
-                                    <select name="medicamentos[${index}][nombre]" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" required>
-                                        <option value="">Seleccione medicamento</option>
-                                        <option value="Paracetamol">Paracetamol</option>
-                                        <option value="Ibuprofeno">Ibuprofeno</option>
-                                        <option value="Amoxicilina">Amoxicilina</option>
-                                        <option value="Enalapril">Enalapril</option>
-                                    </select>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Temperatura</label>
+                                    <input type="text" name="temperatura" class="w-full border rounded-md p-2" placeholder="36.5°C">
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Presión</label>
+                                    <input type="text" name="presion" class="w-full border rounded-md p-2" placeholder="120/80">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex gap-2">
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                Guardar
+                            </button>
+                            <a href="?tab=diagnostico" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Siguiente →
+                            </a>
+                        </div>
+                    </form>
+
+                @elseif($tab == 'diagnostico')
+                    <h3 class="text-lg font-bold mb-4">Diagnóstico</h3>
+                    <form method="POST" action="{{ route('doctor.citas.diagnostico', $cita['id']) }}">
+                        @csrf
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Diagnóstico</label>
+                                <textarea name="diagnostico" rows="4" class="w-full border rounded-md p-2"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Indicaciones</label>
+                                <textarea name="indicaciones" rows="3" class="w-full border rounded-md p-2"></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex gap-2">
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                Guardar
+                            </button>
+                            <a href="?tab=examenes" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Siguiente →
+                            </a>
+                        </div>
+                    </form>
+
+                @elseif($tab == 'examenes')
+                    <h3 class="text-lg font-bold mb-4">Exámenes Médicos</h3>
+                    <form method="POST" action="{{ route('doctor.citas.examenes', $cita['id']) }}">
+                        @csrf
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Exámenes de Laboratorio</label>
+                                <textarea name="examenes_laboratorio" rows="3" class="w-full border rounded-md p-2" placeholder="Hemograma completo, Glucosa en ayunas, etc."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Exámenes de Imágenes</label>
+                                <textarea name="examenes_imagenes" rows="3" class="w-full border rounded-md p-2" placeholder="Radiografía de tórax, Ecografía abdominal, etc."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Otros Exámenes</label>
+                                <textarea name="otros_examenes" rows="3" class="w-full border rounded-md p-2" placeholder="Electrocardiograma, Espirometría, etc."></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex gap-2">
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                Guardar
+                            </button>
+                            <a href="?tab=receta" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Siguiente →
+                            </a>
+                        </div>
+                    </form>
+
+                @elseif($tab == 'receta')
+                    <h3 class="text-lg font-bold mb-4">Receta Médica</h3>
+                    <form method="POST" action="{{ route('doctor.citas.receta', $cita['id']) }}">
+                        @csrf
+                        <div class="space-y-4">
+                            <div class="border rounded p-4">
+                                <h4 class="font-medium mb-3">Medicamento 1</h4>
+                                <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Dosis</label>
-                                        <input type="text" name="medicamentos[${index}][dosis]" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Ej: 500mg" required>
+                                        <label class="block text-sm font-medium mb-1">Medicamento</label>
+                                        <input type="text" name="medicamentos[0][nombres]" class="w-full border rounded-md p-2" placeholder="Paracetamol">
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia</label>
-                                        <input type="text" name="medicamentos[${index}][frecuencia]" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Ej: Cada 8 horas" required>
+                                        <label class="block text-sm font-medium mb-1">Dosis</label>
+                                        <input type="text" name="medicamentos[0][dosis]" class="w-full border rounded-md p-2" placeholder="500mg">
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Duración</label>
-                                        <input type="text" name="medicamentos[${index}][duracion]" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="Ej: 7 días" required>
+                                        <label class="block text-sm font-medium mb-1">Frecuencia</label>
+                                        <input type="text" name="medicamentos[0][frecuencia]" class="w-full border rounded-md p-2" placeholder="Cada 8 horas">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Duración</label>
+                                        <input type="text" name="medicamentos[0][duracion]" class="w-full border rounded-md p-2" placeholder="7 días">
                                     </div>
                                 </div>
                             </div>
-                            `;
-                            document.getElementById('nuevo-medicamento-list').insertAdjacentHTML('beforeend', html);
-                            index++;
-                        });
-                    });
-                </script>
-            @endif
+                        </div>
+                        <div class="mt-6 flex gap-2">
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                Guardar
+                            </button>
+                            <a href="?tab=indicaciones" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Siguiente →
+                            </a>
+                        </div>
+                    </form>
+
+                @elseif($tab == 'indicaciones')
+                    <h3 class="text-lg font-bold mb-4">Indicaciones Finales</h3>
+                    <form method="POST" action="{{ route('doctor.citas.indicaciones', $cita['id']) }}">
+                        @csrf
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Indicaciones Generales</label>
+                                <textarea name="indicaciones_generales" rows="4" class="w-full border rounded-md p-2"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Recomendaciones</label>
+                                <textarea name="recomendaciones" rows="3" class="w-full border rounded-md p-2"></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                Finalizar Consulta ✓
+                            </button>
+                        </div>
+                    </form>
+                @endif
+            </div>
         </div>
 
-        <!-- INFORMACIÓN DEL PACIENTE Y HISTORIAL -->
+        <!-- Sidebar: Información del Paciente y Historial -->
         <div class="space-y-6">
+            <!-- Información del Paciente -->
             <div class="bg-white rounded-lg shadow">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-semibold">Información del Paciente</h3>
@@ -260,44 +259,62 @@
                             </svg>
                         </div>
                         <div>
-                            <h4 class="font-medium">{{ $cita['paciente']['nombre'] }} {{ $cita['paciente']['apellidos'] }}</h4>
-                            <p class="text-sm text-gray-500">{{ \App\Services\DataService::getEdadPaciente($cita['paciente']['fecha_nacimiento']) }} años</p>
+                            <h4 class="font-medium">{{ $cita['paciente']['nombres'] }} {{ $cita['paciente']['apellidos'] }}</h4>
+                            <p class="text-sm text-gray-500">
+                                @if(isset($cita['paciente']['fecha_nac']))
+                                    @php
+                                        $edad = \Carbon\Carbon::parse($cita['paciente']['fecha_nac'])->age;
+                                    @endphp
+                                    {{ $edad }} años
+                                @else
+                                    Edad no especificada
+                                @endif
+                            </p>
                         </div>
                     </div>
                     <div class="space-y-2 text-sm">
-                        <p><span class="font-medium">DNI:</span> {{ $cita['paciente']['dni'] }}</p>
-                        <p><span class="font-medium">Teléfono:</span> {{ $cita['paciente']['telefono'] }}</p>
-                        <p><span class="font-medium">Email:</span> {{ $cita['paciente']['email'] ?? 'No disponible' }}</p>
+                        <p><span class="font-medium">DNI:</span> {{ $cita['paciente']['dni'] ?? 'No especificado' }}</p>
+                        <p><span class="font-medium">Teléfono:</span> {{ $cita['paciente']['telefono'] ?? 'No especificado' }}</p>
+                        <p><span class="font-medium">Email:</span> {{ $cita['paciente']['correo'] ?? 'No especificado' }}</p>
                     </div>
-                    <a href="{{ route('doctor.historial.paciente', $cita['paciente']['id']) }}"
-                       class="inline-flex items-center w-full justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Ver Historial Completo
-                    </a>
+                    @if(isset($cita['paciente']['id']))
+                        <a href="{{ route('doctor.historial.paciente', $cita['paciente']['id']) }}"
+                           class="inline-flex items-center w-full justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Ver Historial Completo
+                        </a>
+                    @endif
                 </div>
             </div>
+
+            <!-- Historial Reciente -->
             <div class="bg-white rounded-lg shadow">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-semibold">Historial Reciente</h3>
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
-                        @forelse($historial as $item)
-                            <div class="border-b pb-4 last:border-0 last:pb-0">
-                                <div class="flex justify-between items-start">
-                                    <p class="font-medium">{{ $item['diagnostico'] }}</p>
-                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded">{{ \Carbon\Carbon::parse($item['fecha_consulta'])->format('d/m/Y') }}</span>
+                        @if(isset($cita['historial']) && count($cita['historial']) > 0)
+                            @foreach($cita['historial'] as $item)
+                                <div class="border-b pb-4 last:border-0 last:pb-0">
+                                    <div class="flex justify-between items-start">
+                                        <p class="font-medium">{{ $item['diagnostico'] }}</p>
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded">
+                                            {{ $item['fecha'] }}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        @empty
+                            @endforeach
+                        @else
                             <p class="text-gray-500 text-center">No hay historial disponible</p>
-                        @endforelse
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 @endsection
