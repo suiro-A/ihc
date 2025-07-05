@@ -394,13 +394,19 @@ public function buscarPacientes(Request $request)
             $paciente = \App\Models\Paciente::find($request->paciente_id);
         }
 
-        // Obtener médicos con usuario y especialidad
-        $doctores = \App\Models\Medico::with(['usuario', 'especialidadNombre'])->get();
+        // Obtener médicos con usuario y especialidad (solo activos)
+        $doctores = \App\Models\Medico::with(['usuario', 'especialidadNombre'])
+            ->whereHas('usuario', function($query) {
+                $query->where('estado', 1); // Solo usuarios activos
+            })
+            ->get();
 
-        // Obtener disponibilidades para pasar a la vista
+        // Obtener disponibilidades para pasar a la vista (solo de doctores activos)
         $disponibilidades = \DB::table('disponibilidad')
             ->join('turno', 'disponibilidad.id_turno', '=', 'turno.id_turno')
             ->join('medico', 'disponibilidad.id_usuario', '=', 'medico.id_usuario')
+            ->join('usuario', 'medico.id_usuario', '=', 'usuario.id_usuario')
+            ->where('usuario.estado', 1) // Solo usuarios activos
             ->select('disponibilidad.*', 'turno.descripcion', 'turno.hora_inicio', 'turno.hora_fin')
             ->get()
             ->groupBy('id_usuario');
@@ -519,8 +525,12 @@ public function buscarPacientes(Request $request)
             'estado' => $citaDB->estado,
         ];
 
-        // Obtener lista de doctores para el select
-        $doctores = collect(\App\Models\Medico::with(['usuario', 'especialidadNombre'])->get())->map(function($medico) {
+        // Obtener lista de doctores para el select (solo activos)
+        $doctores = collect(\App\Models\Medico::with(['usuario', 'especialidadNombre'])
+            ->whereHas('usuario', function($query) {
+                $query->where('estado', 1); // Solo usuarios activos
+            })
+            ->get())->map(function($medico) {
             return [
                 'id' => $medico->id_usuario,
                 'name' => $medico->usuario->nombres . ' ' . $medico->usuario->apellidos,
@@ -528,10 +538,12 @@ public function buscarPacientes(Request $request)
             ];
         });
 
-        // Obtener disponibilidades para pasar a la vista
+        // Obtener disponibilidades para pasar a la vista (solo de doctores activos)
         $disponibilidades = \DB::table('disponibilidad')
             ->join('turno', 'disponibilidad.id_turno', '=', 'turno.id_turno')
             ->join('medico', 'disponibilidad.id_usuario', '=', 'medico.id_usuario')
+            ->join('usuario', 'medico.id_usuario', '=', 'usuario.id_usuario')
+            ->where('usuario.estado', 1) // Solo usuarios activos
             ->select('disponibilidad.*', 'turno.descripcion', 'turno.hora_inicio', 'turno.hora_fin')
             ->get()
             ->groupBy('id_usuario');

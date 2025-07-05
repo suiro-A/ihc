@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cita;
+use App\Models\Paciente;
+use App\Models\HistorialClinico;
 use App\Services\DataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -16,33 +19,6 @@ class DoctorController extends Controller
 
     public function dashboard()
     {
-        // $doctor = $this->getCurrentUser();
-        
-        // $citasHoy = DataService::getCitasHoy()->where('doctor_id', $doctor['id']);
-        // $todasCitas = DataService::getCitasByDoctor($doctor['id']);
-        // $proximasCitas = $todasCitas->where('estado', 'agendada')
-        //                            ->where('fecha', '>=', Carbon::today()->format('Y-m-d'))
-        //                            ->sortBy(['fecha', 'hora'])
-        //                            ->take(3);
-        
-        // // Enriquecer citas con datos de pacientes
-        // $proximasCitas = $proximasCitas->map(function ($cita) {
-        //     $paciente = DataService::findPaciente($cita['paciente_id']);
-        //     $cita['paciente'] = $paciente;
-        //     return $cita;
-        // });
-
-        // $stats = [
-        //     'citas_hoy' => $citasHoy->count(),
-        //     'proxima_cita' => $proximasCitas->first(),
-        //     'pacientes_atendidos' => $citasHoy->where('estado', 'completada')->count(),
-        //     'recetas_emitidas' => DataService::getHistorialClinico()
-        //                                     ->where('doctor_id', $doctor['id'])
-        //                                     ->where('fecha_consulta', '>=', Carbon::today()->format('Y-m-d'))
-        //                                     ->whereNotNull('receta_medica')
-        //                                     ->count(),
-        // ];
-
         $stats = [
             'citas_hoy' => 11,
             'pacientes_atendidos' => 5,
@@ -65,19 +41,51 @@ class DoctorController extends Controller
     {
         $doctor = $this->getCurrentUser();
         $fecha = $request->get('fecha', Carbon::today()->format('Y-m-d'));
+        $vista = $request->get('vista', 'dia');
         
-        $citas = DataService::getCitasByDoctor($doctor['id'])
-                           ->where('fecha', $fecha)
-                           ->sortBy('hora');
+        // Obtener citas según la vista seleccionada usando Eloquent
+        $query = Cita::with(['historial.paciente', 'horaConsulta'])
+                     ->whereHas('medico.usuario', function ($q) use ($doctor) {
+                         $q->where('id_usuario', $doctor['id']);
+                     });
         
-        // Enriquecer con datos de pacientes
-        $citas = $citas->map(function ($cita) {
-            $paciente = DataService::findPaciente($cita['paciente_id']);
-            $cita['paciente'] = $paciente;
-            return $cita;
-        });
+        if ($vista === 'dia') {
+            $query->where('fecha', $fecha);
+        } elseif ($vista === 'semana') {
+            $fechaActual = Carbon::parse($fecha);
+            $inicioSemana = $fechaActual->copy()->startOfWeek()->format('Y-m-d');
+            $finSemana = $fechaActual->copy()->endOfWeek()->format('Y-m-d');
+            
+            $query->whereBetween('fecha', [$inicioSemana, $finSemana]);
+        } else { // mes
+            $fechaActual = Carbon::parse($fecha);
+            $inicioMes = $fechaActual->copy()->startOfMonth()->format('Y-m-d');
+            $finMes = $fechaActual->copy()->endOfMonth()->format('Y-m-d');
+            
+            $query->whereBetween('fecha', [$inicioMes, $finMes]);
+        }
         
-        return view('doctor.agenda', compact('citas', 'fecha'));
+        $citas = $query->orderBy('fecha')
+                      ->orderBy('id_hora')
+                      ->get()
+                      ->map(function ($cita) {
+                          // Adaptar estructura para mantener compatibilidad con la vista
+                          return [
+                              'id' => $cita->id_cita,
+                              'paciente_id' => $cita->historial->paciente->id_paciente ?? null,
+                              'doctor_id' => $cita->id_medico,
+                              'fecha' => $cita->fecha->format('Y-m-d'),
+                              'hora' => $cita->horaConsulta->hora_inicio ?? '00:00',
+                              'motivo' => $cita->motivo,
+                              'estado' => $cita->estado,
+                              'paciente' => [
+                                  'nombre' => $cita->historial->paciente->nombres ?? 'Sin nombre',
+                                  'apellidos' => $cita->historial->paciente->apellidos ?? 'Sin apellidos',
+                              ]
+                          ];
+                      });
+        
+        return view('doctor.agenda', compact('citas', 'fecha', 'vista'));
     }
 
     public function historial()
@@ -127,33 +135,57 @@ class DoctorController extends Controller
         return view('doctor.historial.paciente', compact('paciente', 'historial'));
     }
 
-public function detalleCita($id)
-{
-    $doctor = $this->getCurrentUser();
-    $cita = \App\Services\DataService::findCita($id);
+    public function detalleCita($id)
+    {
+        $doctor = $this->getCurrentUser();
+        
+        // Obtener cita usando Eloquent
+        $citaModel = Cita::with(['historial.paciente', 'horaConsulta', 'medico.usuario'])
+                         ->where('id_cita', $id)
+                         ->whereHas('medico.usuario', function ($q) use ($doctor) {
+                             $q->where('id_usuario', $doctor['id']);
+                         })
+                         ->first();
 
-    if (!$cita || $cita['doctor_id'] != $doctor['id']) {
-        abort(404, 'Cita no encontrada');
+        if (!$citaModel) {
+            abort(404, 'Cita no encontrada');
+        }
+
+        // Adaptar estructura para mantener compatibilidad con la vista
+        $cita = [
+            'id' => $citaModel->id_cita,
+            'paciente_id' => $citaModel->historial->paciente->id_paciente ?? null,
+            'doctor_id' => $citaModel->id_medico,
+            'fecha' => $citaModel->fecha->format('Y-m-d'),
+            'hora' => $citaModel->horaConsulta->hora_inicio ?? '00:00',
+            'motivo' => $citaModel->motivo,
+            'estado' => $citaModel->estado,
+            'paciente' => [
+                'id' => $citaModel->historial->paciente->id_paciente ?? null,
+                'nombre' => $citaModel->historial->paciente->nombres ?? 'Sin nombre',
+                'apellidos' => $citaModel->historial->paciente->apellidos ?? 'Sin apellidos',
+                'dni' => $citaModel->historial->paciente->dni ?? 'Sin DNI',
+                'telefono' => $citaModel->historial->paciente->telefono ?? 'Sin teléfono',
+                'email' => $citaModel->historial->paciente->correo ?? null,
+                'fecha_nacimiento' => $citaModel->historial->paciente->fecha_nac ?? null,
+            ]
+        ];
+
+        // Para diagnóstico y receta seguir usando DataService
+        $historial = DataService::getHistorialByPaciente($cita['paciente_id'])
+            ->sortByDesc('fecha_consulta')
+            ->take(5);
+
+        // Buscar diagnóstico asociado a esta cita
+        $diagnosticoActual = collect(DataService::getHistorialByPaciente($cita['paciente_id']))
+            ->where('cita_id', $cita['id'])
+            ->first();
+
+        // Buscar receta médica asociada a esta cita
+        $recetaActual = $diagnosticoActual;
+
+        return view('doctor.citas.detalle', compact('cita', 'historial', 'diagnosticoActual', 'recetaActual'));
     }
-
-    $paciente = \App\Services\DataService::findPaciente($cita['paciente_id']);
-    $cita['paciente'] = $paciente;
-
-    $historial = \App\Services\DataService::getHistorialByPaciente($cita['paciente_id'])
-        ->sortByDesc('fecha_consulta')
-        ->take(5);
-
-    // Buscar diagnóstico asociado a esta cita
-    $diagnosticoActual = collect(\App\Services\DataService::getHistorialByPaciente($cita['paciente_id']))
-        ->where('cita_id', $cita['id'])
-        ->first();
-
-    // Buscar receta médica asociada a esta cita
-    $recetaActual = $diagnosticoActual;
-
-    // ¡Agrega $diagnosticoActual aquí!
-    return view('doctor.citas.detalle', compact('cita', 'historial', 'diagnosticoActual', 'recetaActual'));
-}
 
     public function guardarDiagnostico(Request $request, $citaId)
     {
@@ -178,24 +210,24 @@ public function detalleCita($id)
     }
 
     public function guardarReceta(Request $request, $citaId)
-{
-    $request->validate([
-        'medicamento' => 'required|string',
-        'dosis' => 'required|string',
-        'frecuencia' => 'required|string',
-        'duracion' => 'required|string',
-    ]);
+    {
+        $request->validate([
+            'medicamento' => 'required|string',
+            'dosis' => 'required|string',
+            'frecuencia' => 'required|string',
+            'duracion' => 'required|string',
+        ]);
 
-    $doctor = $this->getCurrentUser();
-    $cita = \App\Services\DataService::findCita($citaId);
+        $doctor = $this->getCurrentUser();
+        $cita = DataService::findCita($citaId);
 
-    if (!$cita || $cita['doctor_id'] != $doctor['id']) {
-        abort(404, 'Cita no encontrada');
+        if (!$cita || $cita['doctor_id'] != $doctor['id']) {
+            abort(404, 'Cita no encontrada');
+        }
+
+        // Aquí guardarías la receta en la base de datos o servicio correspondiente
+
+        return redirect()->route('doctor.citas.detalle', $citaId)
+            ->with('success', 'Receta médica guardada exitosamente.');
     }
-
-    // Aquí guardarías la receta en la base de datos o servicio correspondiente
-
-    return redirect()->route('doctor.citas.detalle', $citaId)
-        ->with('success', 'Receta médica guardada exitosamente.');
-}
 }

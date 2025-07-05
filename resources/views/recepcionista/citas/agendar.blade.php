@@ -84,6 +84,7 @@
                                class="mt-1 mb-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
                         <input type="hidden" name="doctor_id" id="doctor_id">
                         <ul id="lista_doctores" class="border rounded-md bg-white shadow max-h-48 overflow-y-auto hidden">
+                            {{-- Solo se muestran doctores con estado activo --}}
                             @foreach($doctores as $medico)
                                 <li class="px-4 py-2 cursor-pointer hover:bg-green-100"
                                     data-id="{{ $medico->id_usuario }}">
