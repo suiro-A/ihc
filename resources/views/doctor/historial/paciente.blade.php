@@ -32,6 +32,7 @@
                                 <div>
                                     <h4 class="text-lg font-semibold text-gray-900">Consulta del {{ \Carbon\Carbon::parse($consulta['fecha_consulta'])->format('d/m/Y') }}</h4>
                                     <p class="text-sm text-gray-600">Dr. {{ $consulta['doctor_nombre'] ?? 'No especificado' }}</p>
+                                    <p class="text-xs text-gray-500">{{ $consulta['especialidad'] ?? 'Especialidad no especificada' }}</p>
                                 </div>
                                 <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium">Atendida</span>
                             </div>

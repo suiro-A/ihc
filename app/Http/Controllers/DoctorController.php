@@ -151,7 +151,7 @@ class DoctorController extends Controller
     {
         $doctor = $this->getCurrentUser();
         
-        // Obtener pacientes de forma más directa
+        // Obtener pacientes que han tenido citas con el doctor actual
         $pacientes = DB::table('paciente as p')
             ->join('historial_clinico as h', 'p.id_paciente', '=', 'h.id_paciente')
             ->join('cita as c', 'h.id_historial', '=', 'c.id_historial')
@@ -161,12 +161,10 @@ class DoctorController extends Controller
             ->distinct()
             ->get()
             ->map(function ($paciente) use ($doctor) {
-                // Obtener última cita que ya ocurrió (antes o igual a hoy)
-                // Incluyendo tanto citas atendidas como ausentes
+                // Obtener última cita del paciente (de cualquier doctor)
                 $ultimaCita = DB::table('cita as c')
                     ->join('historial_clinico as h', 'c.id_historial', '=', 'h.id_historial')
                     ->where('h.id_paciente', $paciente->id_paciente)
-                    ->where('c.id_medico', $doctor['id'])
                     ->where('c.fecha', '<=', now()->format('Y-m-d'))
                     ->whereIn('c.estado', ['Atendida', 'Ausente'])
                     ->orderByDesc('c.fecha')
@@ -208,7 +206,7 @@ class DoctorController extends Controller
             'fecha_nacimiento' => $paciente->fecha_nac
         ];
         
-        // Obtener historial desde la base de datos
+        // Obtener historial desde la base de datos (TODAS las citas del paciente, de cualquier doctor)
         $historial = DB::table('cita as c')
             ->join('historial_clinico as h', 'c.id_historial', '=', 'h.id_historial')
             ->leftJoin('apuntes as a', 'c.id_cita', '=', 'a.id_cita')
@@ -216,12 +214,13 @@ class DoctorController extends Controller
             ->leftJoin('indicaciones as i', 'c.id_cita', '=', 'i.id_cita')
             ->leftJoin('medico as m', 'c.id_medico', '=', 'm.id_usuario')
             ->leftJoin('usuario as u', 'm.id_usuario', '=', 'u.id_usuario')
+            ->leftJoin('especialidad as e', 'm.especialidad', '=', 'e.id_especialidad')
             ->where('h.id_paciente', $id)
-            ->where('c.id_medico', $doctor['id'])
             ->where('c.estado', 'Atendida')
             ->select('c.id_cita', 'c.fecha as fecha_consulta', 'a.sintomas_reportados', 'a.exploracion_fisica', 
                     'd.descripcion as diagnostico', 'i.descripcion as indicaciones',
-                    'u.nombres as doctor_nombre', 'u.apellidos as doctor_apellidos')
+                    'u.nombres as doctor_nombre', 'u.apellidos as doctor_apellidos',
+                    'e.nombre as especialidad')
             ->orderByDesc('c.fecha')
             ->get()
             ->map(function($consulta) {
@@ -247,6 +246,7 @@ class DoctorController extends Controller
                 return [
                     'fecha_consulta' => $consulta->fecha_consulta,
                     'doctor_nombre' => trim(($consulta->doctor_nombre ?? '') . ' ' . ($consulta->doctor_apellidos ?? '')),
+                    'especialidad' => $consulta->especialidad ?? 'No especificada',
                     'sintomas_reportados' => $consulta->sintomas_reportados,
                     'exploracion_fisica' => $consulta->exploracion_fisica,
                     'diagnostico' => $consulta->diagnostico,
