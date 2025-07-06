@@ -43,7 +43,6 @@
                             <th class="px-4 py-2 text-left">Edad</th>
                             <th class="px-4 py-2 text-left">Teléfono</th>
                             <th class="px-4 py-2 text-left">Correo</th>
-                            <th class="px-4 py-2 text-left">Última cita</th>
                             <th class="px-4 py-2"></th>
                         </tr>
                     </thead>
@@ -55,9 +54,6 @@
                                 <td class="px-4 py-2 text-left align-middle">{{ $paciente->edad ?? '-' }}</td>
                                 <td class="px-4 py-2 text-left align-middle">{{ $paciente->telefono }}</td>
                                 <td class="px-4 py-2 text-left align-middle">{{ $paciente->correo }}</td>
-                                <td class="px-4 py-2 text-left align-middle">
-                                    {{ $paciente->ultima_cita ? $paciente->ultima_cita : 'Sin citas' }}
-                                </td>
                                 <td class="px-4 py-2 text-center align-middle space-x-1">
                                     <a href="{{ route('recepcionista.pacientes.editar', $paciente->id_paciente) }}" 
                                            class="inline-flex items-center px-2 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700">
