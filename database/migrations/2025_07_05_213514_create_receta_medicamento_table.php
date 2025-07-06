@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_frecuencia');
             $table->string('dosis');
             $table->string('duración');
+            $table->text('instrucciones');
 
 
 

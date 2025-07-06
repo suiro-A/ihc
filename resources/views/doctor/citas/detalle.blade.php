@@ -40,6 +40,9 @@
             </a>
             <a href="?tab=receta" class="px-4 py-2 rounded-md text-sm {{ $tab == 'receta' ? 'bg-white shadow' : '' }}">
                 Receta
+                @if($recetaActual && $recetaActual->recetaMedicamentos->count() > 0)
+                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full ml-1"></span>
+                @endif
             </a>
             <a href="?tab=indicaciones" class="px-4 py-2 rounded-md text-sm {{ $tab == 'indicaciones' ? 'bg-white shadow' : '' }}">
                 Indicaciones
@@ -209,34 +212,164 @@
 
                 @elseif($tab == 'receta')
                     <h3 class="text-lg font-bold mb-4">Receta Médica</h3>
-                    <form method="POST" action="{{ route('doctor.citas.receta', $cita['id']) }}">
+                    <form method="POST" action="{{ route('doctor.citas.receta', $cita['id']) }}" id="form-receta">
                         @csrf
-                        <div class="space-y-4">
-                            <div class="border rounded p-4">
-                                <h4 class="font-medium mb-3">Medicamento 1</h4>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">Medicamento</label>
-                                        <input type="text" name="medicamentos[0][nombres]" class="w-full border rounded-md p-2" placeholder="Paracetamol">
+                        <div id="medicamentos-container" class="space-y-4">
+                            @if($recetaActual && $recetaActual->recetaMedicamentos->count() > 0)
+                                @foreach($recetaActual->recetaMedicamentos as $index => $recetaMed)
+                                    <div class="medicamento-item border rounded-lg p-4 bg-gray-50 relative cursor-pointer medicamento-bloqueado" onclick="confirmarDesbloqueoMedicamento(this)" data-medicamento-index="{{ $index }}" data-bloqueado="true">
+                                        <!-- Overlay de bloqueo -->
+                                        <div class="medicamento-overlay absolute inset-0 bg-gray-300 bg-opacity-80 rounded-lg flex items-center justify-center z-10">
+                                            <div class="text-center p-4 bg-white rounded-lg shadow-lg border-2 border-gray-400">
+                                                <svg class="w-8 h-8 text-gray-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                                </svg>
+                                                <p class="text-sm text-gray-700 font-semibold mb-1">🔒 Medicamento Protegido</p>
+                                                <p class="text-xs text-gray-600">Click para modificar</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex justify-between items-center mb-3">
+                                            <h4 class="font-medium text-gray-800">Medicamento {{ $index + 1 }}</h4>
+                                            <button type="button" class="btn-remover-medicamento text-red-500 hover:text-red-700 {{ $index == 0 ? 'hidden' : '' }}" onclick="event.stopPropagation(); removerMedicamento(this)">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <!-- Campos hidden para garantizar que se envíen los datos protegidos -->
+                                            <input type="hidden" name="medicamentos[{{ $index }}][medicamento]" value="{{ $recetaMed->id_medicamento }}">
+                                            <input type="hidden" name="medicamentos[{{ $index }}][dosis]" value="{{ $recetaMed->dosis }}">
+                                            <input type="hidden" name="medicamentos[{{ $index }}][frecuencia]" value="{{ $recetaMed->id_frecuencia }}">
+                                            <input type="hidden" name="medicamentos[{{ $index }}][duracion]" value="{{ $recetaMed->duración }}">
+                                            <input type="hidden" name="medicamentos[{{ $index }}][instrucciones]" value="{{ $recetaMed->instrucciones }}">
+                                            
+                                            <div>
+                                                <label class="block text-sm font-medium mb-1 text-red-600">Medicamento *</label>
+                                                <select name="medicamentos_visual[{{ $index }}][medicamento]" class="w-full border rounded-md p-2" required disabled data-original="{{ $recetaMed->id_medicamento }}">
+                                                    <option value="">Seleccione un medicamento</option>
+                                                    @foreach($medicamentos as $medicamento)
+                                                        <option value="{{ $medicamento->id_medicamento }}" {{ $medicamento->id_medicamento == $recetaMed->id_medicamento ? 'selected' : '' }}>
+                                                            {{ $medicamento->nombre }} - {{ $medicamento->presentacion }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium mb-1 text-red-600">Dosis *</label>
+                                                <input type="text" name="medicamentos_visual[{{ $index }}][dosis]" class="w-full border rounded-md p-2" 
+                                                       placeholder="Ej: 500mg, 1 tableta" value="{{ $recetaMed->dosis }}" required disabled>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium mb-1 text-red-600">Frecuencia *</label>
+                                                <select name="medicamentos_visual[{{ $index }}][frecuencia]" class="w-full border rounded-md p-2" required disabled>
+                                                    <option value="">Seleccione frecuencia</option>
+                                                    @foreach($frecuencias as $frecuencia)
+                                                        <option value="{{ $frecuencia->id_frecuencia }}" {{ $frecuencia->id_frecuencia == $recetaMed->id_frecuencia ? 'selected' : '' }}>
+                                                            {{ $frecuencia->descripcion }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium mb-1 text-red-600">Duración *</label>
+                                                <select name="medicamentos_visual[{{ $index }}][duracion]" class="w-full border rounded-md p-2" required disabled>
+                                                    <option value="">Seleccione duración</option>
+                                                    @foreach(['3 días', '5 días', '7 días', '10 días', '14 días', '21 días', '30 días', '60 días', '90 días', 'Continuo'] as $duracion)
+                                                        <option value="{{ $duracion }}" {{ $duracion == $recetaMed->duración ? 'selected' : '' }}>
+                                                            {{ $duracion == 'Continuo' ? 'Tratamiento continuo' : $duracion }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4">
+                                            <label class="block text-sm font-medium mb-1">Instrucciones Especiales</label>
+                                            <textarea name="medicamentos_visual[{{ $index }}][instrucciones]" rows="2" 
+                                                     class="w-full border rounded-md p-2" 
+                                                     placeholder="Ej: Tomar con abundante agua, evitar alcohol, etc." disabled>{{ $recetaMed->instrucciones }}</textarea>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">Dosis</label>
-                                        <input type="text" name="medicamentos[0][dosis]" class="w-full border rounded-md p-2" placeholder="500mg">
+                                @endforeach
+                            @else
+                                <!-- Medicamento 1 (inicial) -->
+                                <div class="medicamento-item border rounded-lg p-4 bg-gray-50">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <h4 class="font-medium text-gray-800">Medicamento 1</h4>
+                                        <button type="button" class="btn-remover-medicamento text-red-500 hover:text-red-700 hidden" onclick="removerMedicamento(this)">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">Frecuencia</label>
-                                        <input type="text" name="medicamentos[0][frecuencia]" class="w-full border rounded-md p-2" placeholder="Cada 8 horas">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1 text-red-600">Medicamento *</label>
+                                            <select name="medicamentos[0][medicamento]" class="w-full border rounded-md p-2" required>
+                                                <option value="">Seleccione un medicamento</option>
+                                                @foreach($medicamentos as $medicamento)
+                                                    <option value="{{ $medicamento->id_medicamento }}">
+                                                        {{ $medicamento->nombre }} - {{ $medicamento->presentacion }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1 text-red-600">Dosis *</label>
+                                            <input type="text" name="medicamentos[0][dosis]" class="w-full border rounded-md p-2" 
+                                                   placeholder="Ej: 500mg, 1 tableta" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1 text-red-600">Frecuencia *</label>
+                                            <select name="medicamentos[0][frecuencia]" class="w-full border rounded-md p-2" required>
+                                                <option value="">Seleccione frecuencia</option>
+                                                @foreach($frecuencias as $frecuencia)
+                                                    <option value="{{ $frecuencia->id_frecuencia }}">{{ $frecuencia->descripcion }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1 text-red-600">Duración *</label>
+                                            <select name="medicamentos[0][duracion]" class="w-full border rounded-md p-2" required>
+                                                <option value="">Seleccione duración</option>
+                                                <option value="3 días">3 días</option>
+                                                <option value="5 días">5 días</option>
+                                                <option value="7 días">7 días</option>
+                                                <option value="10 días">10 días</option>
+                                                <option value="14 días">14 días</option>
+                                                <option value="21 días">21 días</option>
+                                                <option value="30 días">30 días</option>
+                                                <option value="60 días">60 días</option>
+                                                <option value="90 días">90 días</option>
+                                                <option value="Continuo">Tratamiento continuo</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">Duración</label>
-                                        <input type="text" name="medicamentos[0][duracion]" class="w-full border rounded-md p-2" placeholder="7 días">
+                                    <div class="mt-4">
+                                        <label class="block text-sm font-medium mb-1">Instrucciones Especiales</label>
+                                        <textarea name="medicamentos[0][instrucciones]" rows="2" 
+                                                 class="w-full border rounded-md p-2" 
+                                                 placeholder="Ej: Tomar con abundante agua, evitar alcohol, etc."></textarea>
                                     </div>
                                 </div>
-                            </div>
+                            @endif
                         </div>
+
+                        <!-- Botón para agregar medicamento -->
+                        <div class="mt-4">
+                            <button type="button" id="btn-agregar-medicamento" 
+                                    class="flex items-center px-4 py-2 border border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-800">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Agregar otro medicamento
+                            </button>
+                        </div>
+
                         <div class="mt-6 flex gap-2">
                             <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                                Guardar
+                                {{ $recetaActual && $recetaActual->recetaMedicamentos->count() > 0 ? 'Actualizar Receta' : 'Guardar Receta' }}
                             </button>
                             <a href="?tab=indicaciones" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                                 Siguiente →
@@ -318,9 +451,7 @@
                     @if(isset($cita['paciente']['id']))
                         <a href="{{ route('doctor.historial.paciente', $cita['paciente']['id']) }}"
                            class="inline-flex items-center w-full justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
+                            <img src="{{ asset('icons/ver_historial.png') }}" alt="Ver Historial Completo" class="w-8 h-8 mr-2">
                             Ver Historial Completo
                         </a>
                     @endif
@@ -359,6 +490,213 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar contador según los medicamentos existentes
+    let contadorMedicamentos = document.querySelectorAll('.medicamento-item').length;
+    
+    // Datos de medicamentos y frecuencias desde la base de datos
+    const medicamentosDB = @json($medicamentos ?? []);
+    const frecuenciasDB = @json($frecuencias ?? []);
+    
+    // Configurar botones de remover iniciales
+    actualizarBotonesRemover();
+    
+    // Funciones para proteger medicamentos existentes
+    window.confirmarDesbloqueoMedicamento = function(bloque) {
+        // Solo procesar si está bloqueado
+        if (bloque.dataset.bloqueado === 'true') {
+            Swal.fire({
+                title: "⚠️ Modificar Medicamento",
+                text: "Está a punto de modificar un medicamento ya registrado. ¿Está seguro?",
+                icon: "warning",
+                showDenyButton: true,
+                confirmButtonText: "Sí, permitir modificación",
+                denyButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Desbloquear todo el bloque
+                    desbloquearMedicamento(bloque);
+                }
+            });
+        }
+    };
+
+    function desbloquearMedicamento(bloque) {
+        // Remover el overlay
+        const overlay = bloque.querySelector('.medicamento-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
+        
+        // Habilitar todos los campos visuales y cambiar los nombres para que se envíen
+        const camposVisuales = bloque.querySelectorAll('select[name*="medicamentos_visual"], input[name*="medicamentos_visual"], textarea[name*="medicamentos_visual"]');
+        camposVisuales.forEach(campo => {
+            campo.disabled = false;
+            campo.classList.remove('bg-gray-100');
+            campo.classList.add('bg-white');
+            
+            // Cambiar el name de visual a normal para que se envíe
+            const nuevoName = campo.name.replace('medicamentos_visual', 'medicamentos');
+            campo.name = nuevoName;
+        });
+        
+        // Remover los campos hidden ya que ahora usaremos los campos visuales
+        const camposHidden = bloque.querySelectorAll('input[type="hidden"][name*="medicamentos"]');
+        camposHidden.forEach(campo => campo.remove());
+        
+        // Marcar como desbloqueado
+        bloque.dataset.bloqueado = 'false';
+        bloque.onclick = null;
+        bloque.classList.remove('cursor-pointer');
+        
+        // Agregar indicador visual de que está desbloqueado
+        const titulo = bloque.querySelector('h4');
+        if (titulo && !titulo.querySelector('.indicador-desbloqueado')) {
+            titulo.innerHTML += ' <span class="indicador-desbloqueado text-orange-500 text-sm">🔓 Desbloqueado</span>';
+        }
+        
+        // Configurar confirmación de cambio en el select de medicamento
+        const selectMedicamento = bloque.querySelector('select[name*="[medicamento]"]');
+        if (selectMedicamento) {
+            selectMedicamento.onchange = confirmarCambioMedicamento;
+        }
+    }
+
+    window.confirmarCambioMedicamento = function() {
+        const select = this;
+        const original = select.dataset.original;
+        if (select.value !== original && select.value !== '') {
+            Swal.fire({
+                title: "Confirmar cambio",
+                text: "¿Confirma el cambio de medicamento?",
+                icon: "question",
+                showDenyButton: true,
+                confirmButtonText: "Confirmar",
+                denyButtonText: "Cancelar"
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    select.value = original;
+                }
+            });
+        }
+    };
+    
+    // Función para agregar medicamento
+    document.getElementById('btn-agregar-medicamento')?.addEventListener('click', function() {
+        const container = document.getElementById('medicamentos-container');
+        const nuevoMedicamento = crearMedicamento(contadorMedicamentos);
+        container.appendChild(nuevoMedicamento);
+        contadorMedicamentos++;
+        actualizarBotonesRemover();
+    });
+    
+    // Función para crear un nuevo medicamento
+    function crearMedicamento(index) {
+        const div = document.createElement('div');
+        div.className = 'medicamento-item border rounded-lg p-4 bg-gray-50';
+        
+        // Generar opciones de medicamentos
+        let medicamentosOptions = '<option value="">Seleccione un medicamento</option>';
+        medicamentosDB.forEach(medicamento => {
+            medicamentosOptions += `<option value="${medicamento.id_medicamento}">
+                ${medicamento.nombre} - ${medicamento.presentacion}
+            </option>`;
+        });
+        
+        // Generar opciones de frecuencias
+        let frecuenciasOptions = '<option value="">Seleccione frecuencia</option>';
+        frecuenciasDB.forEach(frecuencia => {
+            frecuenciasOptions += `<option value="${frecuencia.id_frecuencia}">
+                ${frecuencia.descripcion}
+            </option>`;
+        });
+        
+        div.innerHTML = `
+            <div class="flex justify-between items-center mb-3">
+                <h4 class="font-medium text-gray-800">Medicamento ${index + 1}</h4>
+                <button type="button" class="btn-remover-medicamento text-red-500 hover:text-red-700" onclick="removerMedicamento(this)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-red-600">Medicamento *</label>
+                    <select name="medicamentos[${index}][medicamento]" class="w-full border rounded-md p-2" required>
+                        ${medicamentosOptions}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-red-600">Dosis *</label>
+                    <input type="text" name="medicamentos[${index}][dosis]" class="w-full border rounded-md p-2" 
+                           placeholder="Ej: 500mg, 1 tableta" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-red-600">Frecuencia *</label>
+                    <select name="medicamentos[${index}][frecuencia]" class="w-full border rounded-md p-2" required>
+                        ${frecuenciasOptions}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-red-600">Duración *</label>
+                    <select name="medicamentos[${index}][duracion]" class="w-full border rounded-md p-2" required>
+                        <option value="">Seleccione duración</option>
+                        <option value="3 días">3 días</option>
+                        <option value="5 días">5 días</option>
+                        <option value="7 días">7 días</option>
+                        <option value="10 días">10 días</option>
+                        <option value="14 días">14 días</option>
+                        <option value="21 días">21 días</option>
+                        <option value="30 días">30 días</option>
+                        <option value="60 días">60 días</option>
+                        <option value="90 días">90 días</option>
+                        <option value="Continuo">Tratamiento continuo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4">
+                <label class="block text-sm font-medium mb-1">Instrucciones Especiales</label>
+                <textarea name="medicamentos[${index}][instrucciones]" rows="2" 
+                         class="w-full border rounded-md p-2" 
+                         placeholder="Ej: Tomar con abundante agua, evitar alcohol, etc."></textarea>
+            </div>
+        `;
+        return div;
+    }
+    
+    // Función para remover medicamento
+    window.removerMedicamento = function(button) {
+        const medicamentoItem = button.closest('.medicamento-item');
+        medicamentoItem.remove();
+        actualizarNumeracion();
+        actualizarBotonesRemover();
+    };
+    
+    // Función para actualizar numeración
+    function actualizarNumeracion() {
+        const items = document.querySelectorAll('.medicamento-item');
+        items.forEach((item, index) => {
+            const titulo = item.querySelector('h4');
+            titulo.textContent = `Medicamento ${index + 1}`;
+        });
+    }
+    
+    // Función para mostrar/ocultar botones de remover
+    function actualizarBotonesRemover() {
+        const items = document.querySelectorAll('.medicamento-item');
+        const botones = document.querySelectorAll('.btn-remover-medicamento');
+        
+        botones.forEach(boton => {
+            if (items.length > 1) {
+                boton.classList.remove('hidden');
+            } else {
+                boton.classList.add('hidden');
+            }
+        });
+    }
+
+    // ...existing code...
+    
     // Función para el botón Ausente
     const btnAusente = document.getElementById('btn-ausente');
     if (btnAusente) {

@@ -104,30 +104,143 @@
 
                             <!-- Receta -->
                             <div id="receta-{{ $loop->index }}" class="tab-content hidden">
-                                @if(!empty($consulta['receta_medica']))
-                                    <div class="space-y-3">
-                                        @foreach($consulta['receta_medica'] as $medicamento)
-                                            <div class="border rounded-md p-4 bg-green-50">
-                                                <h6 class="font-medium text-green-900">{{ $medicamento['nombre'] }}</h6>
-                                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2 text-sm">
-                                                    <div>
-                                                        <span class="text-gray-600">Dosis:</span>
-                                                        <span class="text-gray-900 font-medium">{{ $medicamento['dosis'] }}</span>
+                                @if(!empty($consulta['receta_medica']) && count($consulta['receta_medica']) > 0)
+                                    <!-- Header de la receta -->
+                                    <div class="border-l-4 border-green-500 bg-gradient-to-r from-green-50 to-white p-4 mb-6 rounded-r-lg">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center">
+                                                <div class="bg-green-500 rounded-full p-2 mr-3">
+                                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h5 class="text-lg font-bold text-gray-900">Receta Médica</h5>
+                                                    <p class="text-sm text-gray-600">{{ count($consulta['receta_medica']) }} medicamento(s) prescrito(s)</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
+                                                    VÁLIDA
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Lista de medicamentos en formato tabla -->
+                                    <div class="overflow-hidden border border-gray-200 rounded-xl">
+                                        @foreach($consulta['receta_medica'] as $index => $medicamento)
+                                            <div class="border-b border-gray-100 last:border-b-0 bg-white hover:bg-gray-50 transition-colors duration-200">
+                                                <div class="p-6">
+                                                    <!-- Header del medicamento -->
+                                                    <div class="flex items-start justify-between mb-4">
+                                                        <div class="flex items-center">
+                                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                                                <span class="text-blue-600 font-bold text-sm">{{ $index + 1 }}</span>
+                                                            </div>
+                                                            <div>
+                                                                <h6 class="text-lg font-semibold text-gray-900 mb-1">{{ $medicamento['nombre'] }}</h6>
+                                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                                                    Medicamento
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-right">
+                                                            <span class="text-sm text-gray-500">Prescrito</span>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <span class="text-gray-600">Frecuencia:</span>
-                                                        <span class="text-gray-900 font-medium">{{ $medicamento['frecuencia'] }}</span>
+
+                                                    <!-- Información del medicamento en formato horizontal -->
+                                                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                                        <!-- Dosis -->
+                                                        <div class="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                                            <div class="flex-shrink-0">
+                                                                <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                                                    </svg>
+                                                                </div>
+                                                            </div>
+                                                            <div class="ml-3">
+                                                                <p class="text-xs font-medium text-blue-600 uppercase tracking-wide">Dosis</p>
+                                                                <p class="text-sm font-bold text-gray-900">{{ $medicamento['dosis'] }}</p>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Frecuencia -->
+                                                        <div class="flex items-center p-3 bg-purple-50 rounded-lg border border-purple-100">
+                                                            <div class="flex-shrink-0">
+                                                                <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                    </svg>
+                                                                </div>
+                                                            </div>
+                                                            <div class="ml-3">
+                                                                <p class="text-xs font-medium text-purple-600 uppercase tracking-wide">Frecuencia</p>
+                                                                <p class="text-sm font-bold text-gray-900">{{ $medicamento['frecuencia'] }}</p>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Duración -->
+                                                        <div class="flex items-center p-3 bg-orange-50 rounded-lg border border-orange-100">
+                                                            <div class="flex-shrink-0">
+                                                                <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                                    </svg>
+                                                                </div>
+                                                            </div>
+                                                            <div class="ml-3">
+                                                                <p class="text-xs font-medium text-orange-600 uppercase tracking-wide">Duración</p>
+                                                                <p class="text-sm font-bold text-gray-900">{{ $medicamento['duracion'] }}</p>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <span class="text-gray-600">Duración:</span>
-                                                        <span class="text-gray-900 font-medium">{{ $medicamento['duracion'] }}</span>
-                                                    </div>
+
+                                                    <!-- Instrucciones especiales -->
+                                                    @if(!empty($medicamento['instrucciones']))
+                                                        <div class="mt-4 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg">
+                                                            <div class="flex items-start">
+                                                                <div class="flex-shrink-0">
+                                                                    <div class="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center">
+                                                                        <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                        </svg>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="ml-3">
+                                                                    <h6 class="text-sm font-semibold text-amber-800 mb-1">Instrucciones Especiales</h6>
+                                                                    <p class="text-sm text-amber-700">{{ $medicamento['instrucciones'] }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
                                     </div>
+
+                                    <!-- Footer informativo -->
+                                    <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <span>Conserve esta receta para futuras consultas. Siga las indicaciones médicas al pie de la letra.</span>
+                                        </div>
+                                    </div>
                                 @else
-                                    <p class="text-gray-500 text-center py-4">No se prescribieron medicamentos</p>
+                                    <!-- Estado vacío mejorado -->
+                                    <div class="text-center py-12">
+                                        <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-2">Sin medicamentos prescritos</h3>
+                                        <p class="text-gray-500 max-w-sm mx-auto">En esta consulta no se emitió receta médica. El tratamiento pudo haber sido no farmacológico.</p>
+                                    </div>
                                 @endif
                             </div>
 

@@ -7,6 +7,10 @@ use App\Models\Paciente;
 use App\Models\HistorialClinico;
 use App\Models\Diagnostico;
 use App\Models\Indicaciones;
+use App\Models\Medicamento;
+use App\Models\Frecuencia;
+use App\Models\Receta;
+use App\Models\RecetaMedicamento;
 use App\Services\DataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -22,19 +26,71 @@ class DoctorController extends Controller
 
     public function dashboard()
     {
+        $doctor = $this->getCurrentUser();
+        $hoy = Carbon::today();
+        
+        // Total de citas para hoy
+        $citasHoy = Cita::where('id_medico', $doctor['id'])
+                        ->where('fecha', $hoy)
+                        ->count();
+        
+        // Pacientes atendidos hoy (citas con estado "Atendida")
+        $pacientesAtendidos = Cita::where('id_medico', $doctor['id'])
+                                ->where('fecha', $hoy)
+                                ->where('estado', 'Atendida')
+                                ->count();
+        
+        // Próxima cita de hoy
+        $proximaCita = Cita::with(['historial.paciente', 'horaConsulta'])
+                           ->where('id_medico', $doctor['id'])
+                           ->where('fecha', $hoy)
+                           ->where('estado', 'Agendada')
+                           ->orderBy('id_hora')
+                           ->first();
+        
+        // Recetas emitidas hoy
+        $recetasHoy = Receta::whereHas('cita', function ($q) use ($doctor, $hoy) {
+                            $q->where('id_medico', $doctor['id'])
+                            ->where('fecha', $hoy);
+                        })
+                        ->count();
+        
+        // Lista de próximas citas para hoy
+        $proximasCitas = Cita::with(['historial.paciente', 'horaConsulta'])
+                             ->where('id_medico', $doctor['id'])
+                             ->where('fecha', $hoy)
+                             ->where('estado', 'Agendada')
+                             ->orderBy('id_hora')
+                             ->get()
+                             ->map(function ($cita) {
+                                 $hora = $cita->horaConsulta ? 
+                                        Carbon::parse($cita->horaConsulta->hora_inicio)->format('g:i A') : 
+                                        '00:00';
+                                 
+                                 return [
+                                     'id' => $cita->id_cita,
+                                     'paciente' => [
+                                         'nombre' => $cita->historial->paciente->nombres ?? 'Sin nombre',
+                                         'apellidos' => $cita->historial->paciente->apellidos ?? 'Sin apellidos'
+                                     ],
+                                     'hora' => $hora,
+                                     'motivo' => $cita->motivo
+                                 ];
+                             });
+        
         $stats = [
-            'citas_hoy' => 11,
-            'pacientes_atendidos' => 5,
-            'proxima_cita' => [
-                'hora' => '10:00 AM',
-                'paciente' => ['nombre' => 'Juan Pérez']
-            ],
-            'recetas_emitidas' => 3,
-        ];
-
-        $proximasCitas = [
-            ['id' => 1, 'paciente' => ['nombre' => 'Ana López', 'apellidos' => 'García'], 'hora' => '11:00 AM', 'motivo' => 'Consulta general'],
-            // Más citas...
+            'citas_hoy' => $citasHoy,
+            'pacientes_atendidos' => $pacientesAtendidos,
+            'proxima_cita' => $proximaCita ? [
+                'hora' => $proximaCita->horaConsulta ? 
+                         Carbon::parse($proximaCita->horaConsulta->hora_inicio)->format('g:i A') : 
+                         '00:00',
+                'paciente' => [
+                    'nombre' => $proximaCita->historial->paciente->nombres ?? 'Sin nombre',
+                    'apellidos' => $proximaCita->historial->paciente->apellidos ?? 'Sin apellidos'
+                ]
+            ] : null,
+            'recetas_emitidas' => $recetasHoy,
         ];
 
         return view('doctor.dashboard', compact('stats', 'proximasCitas'));
@@ -105,14 +161,16 @@ class DoctorController extends Controller
             ->distinct()
             ->get()
             ->map(function ($paciente) use ($doctor) {
-                // Obtener última cita que ya ocurrió (antes o igual a hoy) y fue atendida
+                // Obtener última cita que ya ocurrió (antes o igual a hoy)
+                // Incluyendo tanto citas atendidas como ausentes
                 $ultimaCita = DB::table('cita as c')
                     ->join('historial_clinico as h', 'c.id_historial', '=', 'h.id_historial')
                     ->where('h.id_paciente', $paciente->id_paciente)
                     ->where('c.id_medico', $doctor['id'])
                     ->where('c.fecha', '<=', now()->format('Y-m-d'))
-                    ->where('c.estado', 'Atendida')
+                    ->whereIn('c.estado', ['Atendida', 'Ausente'])
                     ->orderByDesc('c.fecha')
+                    ->orderByDesc('c.id_cita') // En caso de empate en fecha, la más reciente por ID
                     ->first();
                 
                 return [
@@ -122,7 +180,9 @@ class DoctorController extends Controller
                     'dni' => $paciente->dni,
                     'telefono' => $paciente->telefono,
                     'fecha_nacimiento' => $paciente->fecha_nac,
-                    'ultima_cita' => $ultimaCita ? ['fecha' => $ultimaCita->fecha] : null
+                    'ultima_cita' => $ultimaCita ? [
+                        'fecha' => $ultimaCita->fecha
+                    ] : null
                 ];
             });
         
@@ -159,12 +219,31 @@ class DoctorController extends Controller
             ->where('h.id_paciente', $id)
             ->where('c.id_medico', $doctor['id'])
             ->where('c.estado', 'Atendida')
-            ->select('c.fecha as fecha_consulta', 'a.sintomas_reportados', 'a.exploracion_fisica', 
+            ->select('c.id_cita', 'c.fecha as fecha_consulta', 'a.sintomas_reportados', 'a.exploracion_fisica', 
                     'd.descripcion as diagnostico', 'i.descripcion as indicaciones',
                     'u.nombres as doctor_nombre', 'u.apellidos as doctor_apellidos')
             ->orderByDesc('c.fecha')
             ->get()
             ->map(function($consulta) {
+                // Obtener recetas médicas para esta consulta
+                $recetaMedica = DB::table('receta as r')
+                    ->join('receta_medicamento as rm', 'r.id_receta', '=', 'rm.id_receta')
+                    ->join('medicamento as med', 'rm.id_medicamento', '=', 'med.id_medicamento')
+                    ->join('frecuencia as f', 'rm.id_frecuencia', '=', 'f.id_frecuencia')
+                    ->where('r.id_cita', $consulta->id_cita)
+                    ->select('med.nombre', 'med.presentacion', 'rm.dosis', 'f.descripcion as frecuencia', 
+                             'rm.duración', 'rm.instrucciones')
+                    ->get()
+                    ->map(function($medicamento) {
+                        return [
+                            'nombre' => $medicamento->nombre . ' - ' . $medicamento->presentacion,
+                            'dosis' => $medicamento->dosis,
+                            'frecuencia' => $medicamento->frecuencia,
+                            'duracion' => $medicamento->duración,
+                            'instrucciones' => $medicamento->instrucciones
+                        ];
+                    })->toArray();
+
                 return [
                     'fecha_consulta' => $consulta->fecha_consulta,
                     'doctor_nombre' => trim(($consulta->doctor_nombre ?? '') . ' ' . ($consulta->doctor_apellidos ?? '')),
@@ -173,7 +252,7 @@ class DoctorController extends Controller
                     'diagnostico' => $consulta->diagnostico,
                     'indicaciones' => $consulta->indicaciones,
                     'examenes' => [], // Por implementar según tu estructura
-                    'receta_medica' => [] // Por implementar según tu estructura
+                    'receta_medica' => $recetaMedica
                 ];
             });
         
@@ -231,15 +310,29 @@ class DoctorController extends Controller
         $apuntesActual = $citaModel->apuntes;
 
         // Buscar receta médica asociada a esta cita
-        $recetaActual = $diagnosticoActual;
+        $recetaActual = Receta::with(['recetaMedicamentos.medicamento', 'recetaMedicamentos.frecuencia'])
+                              ->where('id_cita', $id)
+                              ->first();
 
         // Datos simulados para las nuevas secciones (en un sistema real vendrían de la base de datos)
         $examenesActual = [];
+        
+        // Obtener medicamentos y frecuencias para los dropdowns
+        $medicamentos = Medicamento::orderBy('nombre')->get();
+        $frecuencias = Frecuencia::orderBy('descripcion')->get();
+
+        // Si no hay datos, crear arrays vacíos
+        if ($medicamentos->isEmpty()) {
+            $medicamentos = collect([]);
+        }
+        if ($frecuencias->isEmpty()) {
+            $frecuencias = collect([]);
+        }
 
         // Obtener la pestaña activa (por defecto 'detalle')
         $tab = request('tab', 'detalle');
 
-        $viewData = compact('cita', 'historial', 'diagnosticoActual', 'recetaActual', 'apuntesActual', 'examenesActual', 'indicacionesActual', 'tab');
+        $viewData = compact('cita', 'historial', 'diagnosticoActual', 'recetaActual', 'apuntesActual', 'examenesActual', 'indicacionesActual', 'medicamentos', 'frecuencias', 'tab');
 
         // Si es una petición AJAX, devolver solo el contenido necesario
         if (request()->ajax()) {
@@ -339,15 +432,93 @@ class DoctorController extends Controller
 
     public function guardarReceta(Request $request, $citaId)
     {
-        // En un sistema real, aquí guardaríamos en la base de datos
-        // Por ahora solo simulamos el éxito sin validaciones
+        $request->validate([
+            'medicamentos' => 'required|array|min:1',
+            'medicamentos.*.medicamento' => 'required|exists:medicamento,id_medicamento',
+            'medicamentos.*.dosis' => 'required|string|max:100',
+            'medicamentos.*.frecuencia' => 'required|exists:frecuencia,id_frecuencia',
+            'medicamentos.*.duracion' => 'required|string|max:50',
+            'medicamentos.*.instrucciones' => 'nullable|string|max:500'
+        ], [
+            'medicamentos.required' => 'Debe agregar al menos un medicamento',
+            'medicamentos.*.medicamento.required' => 'Debe seleccionar un medicamento',
+            'medicamentos.*.medicamento.exists' => 'El medicamento seleccionado no es válido',
+            'medicamentos.*.dosis.required' => 'La dosis es obligatoria',
+            'medicamentos.*.frecuencia.required' => 'La frecuencia es obligatoria',
+            'medicamentos.*.frecuencia.exists' => 'La frecuencia seleccionada no es válida',
+            'medicamentos.*.duracion.required' => 'La duración es obligatoria'
+        ]);
 
-        if ($request->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Receta médica guardada exitosamente']);
+        try {
+            DB::beginTransaction();
+            
+            // Verificar que la cita existe y pertenece al doctor actual
+            $doctor = $this->getCurrentUser();
+            $cita = Cita::with(['historial.paciente'])
+                        ->whereHas('medico.usuario', function ($q) use ($doctor) {
+                            $q->where('id_usuario', $doctor['id']);
+                        })
+                        ->findOrFail($citaId);
+
+            // Verificar si ya existe una receta para determinar si es actualización
+            $recetaExistente = Receta::where('id_cita', $citaId)->first();
+            $esActualizacion = $recetaExistente !== null;
+
+            // Crear o encontrar la receta para esta cita
+            $receta = Receta::firstOrCreate([
+                'id_cita' => $citaId
+            ]);
+
+            // Eliminar medicamentos anteriores de esta receta
+            RecetaMedicamento::where('id_receta', $receta->id_receta)->delete();
+
+            // Guardar los medicamentos nuevos
+            foreach ($request->medicamentos as $medicamentoData) {
+                RecetaMedicamento::create([
+                    'id_receta' => $receta->id_receta,
+                    'id_medicamento' => $medicamentoData['medicamento'],
+                    'id_frecuencia' => $medicamentoData['frecuencia'],
+                    'dosis' => $medicamentoData['dosis'],
+                    'duración' => $medicamentoData['duracion'],
+                    'instrucciones' => $medicamentoData['instrucciones'] ?? null
+                ]);
+            }
+
+            // Determinar mensaje según si es actualización o creación
+            $titulo = $esActualizacion ? '¡Actualizada!' : '¡Guardada!';
+            $mensaje = $esActualizacion ? 'Receta médica actualizada correctamente' : 'Receta médica guardada correctamente';
+
+            DB::commit();
+
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => $mensaje]);
+            }
+
+            // Usar SweetAlert2 para mostrar el mensaje de éxito
+            session()->flash('swal', [
+                'title' => $titulo,
+                'text' => $mensaje,
+                'icon' => 'success'
+            ]);
+
+            return redirect()->route('doctor.citas.detalle', ['id' => $citaId, 'tab' => 'receta']);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::error('Error al guardar receta: ' . $e->getMessage());
+            
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Error al guardar la receta: ' . $e->getMessage()]);
+            }
+
+            session()->flash('swal', [
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al guardar la receta',
+                'icon' => 'error'
+            ]);
+
+            return redirect()->back();
         }
-
-        return redirect()->route('doctor.citas.detalle', $citaId)
-            ->with('success', 'Receta médica guardada exitosamente.');
     }
 
     public function guardarApuntes(Request $request, $citaId)
