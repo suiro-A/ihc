@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Alergia;
+use App\Models\EnfermedadCronica;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,6 +15,9 @@ class DatabaseSeeder extends Seeder
             EspecialidadSeeder::class,
             TurnoSeeder::class,
             UsuarioSeeder::class,
+            AlergiaSeeder::class,
+            EnfermedadCronicaSeeder::class,
+            MedicamentoSeeder::class
         ]);
     }
 }

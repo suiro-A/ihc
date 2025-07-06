@@ -168,7 +168,7 @@ public function guardarPaciente(Request $request)
 public function buscarPacientes(Request $request)
 {
     // Obtener todos los pacientes sin paginación
-    $allPacientes = Paciente::orderBy('apellidos')->get();
+    $allPacientes = Paciente::orderBy('id_paciente')->get();
     
     // Calcular edad y última cita para cada paciente
     $allPacientes->each(function ($paciente) {
@@ -179,13 +179,14 @@ public function buscarPacientes(Request $request)
     // Simular paginación manual (5 por página)
     $perPage = 5;
     $currentPage = LengthAwarePaginator::resolveCurrentPage() ?: 1;
-    $pacientes = new LengthAwarePaginator(
-        $allPacientes->forPage($currentPage, $perPage),
-        $allPacientes->count(),
-        $perPage,
-        $currentPage,
-        ['path' => LengthAwarePaginator::resolveCurrentPath()]
-    );
+    // $pacientes = new LengthAwarePaginator(
+    //     $allPacientes->forPage($currentPage, $perPage),
+    //     $allPacientes->count(),
+    //     $perPage,
+    //     $currentPage,
+    //     ['path' => LengthAwarePaginator::resolveCurrentPath()]
+    // );
+    $pacientes = Paciente::all();
 
     return view('recepcionista.pacientes.buscar', compact('pacientes', 'allPacientes'));
 }
