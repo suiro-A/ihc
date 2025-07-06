@@ -159,11 +159,55 @@
             </nav>
         </div>
 
+        <!-- Selector de Tamaño de Letra -->
+        <div class="px-4 py-3 border-t border-gray-200">
+            <div class="mb-2">
+                <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Tamaño de Letra</span>
+            </div>
+            <div class="flex items-center justify-between space-x-2">
+                <!-- Letra Pequeña -->
+                <button 
+                    onclick="changeFontSize('small')" 
+                    id="font-small"
+                    class="flex items-center justify-center w-8 h-8 rounded-md border-2 transition-all duration-200 hover:bg-gray-50 font-size-btn"
+                    title="Letra pequeña"
+                >
+                    <span class="text-xs font-semibold">A</span>
+                </button>
+
+                <!-- Letra Normal (por defecto) -->
+                <button 
+                    onclick="changeFontSize('normal')" 
+                    id="font-normal"
+                    class="flex items-center justify-center w-8 h-8 rounded-md border-2 transition-all duration-200 hover:bg-gray-50 font-size-btn border-green-500 bg-green-50 text-green-700"
+                    title="Letra normal"
+                >
+                    <span class="text-sm font-semibold">A</span>
+                </button>
+
+                <!-- Letra Grande -->
+                <button 
+                    onclick="changeFontSize('large')" 
+                    id="font-large"
+                    class="flex items-center justify-center w-8 h-8 rounded-md border-2 transition-all duration-200 hover:bg-gray-50 font-size-btn"
+                    title="Letra grande"
+                >
+                    <span class="text-base font-semibold">A</span>
+                </button>
+            </div>
+
+            <!-- Indicador visual del tamaño actual -->
+            <div class="mt-2 text-center">
+                <span id="font-indicator" class="text-xs text-gray-500">Normal</span>
+            </div>
+        </div>
+
         <!-- Footer del sidebar con logout -->
         <div class="px-4 py-4 border-t">
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('logout') }}" id="logout-form">
                 @csrf
                 <button type="submit"
+                    onclick="resetFontSizeOnLogout()"
                     class="flex items-center text-red-600 hover:text-red-800 w-full transition-colors px-0 justify-start"
                 >
                     <svg class="w-7 h-7 flex-shrink-0 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
