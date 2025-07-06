@@ -26,9 +26,9 @@
                     $estadoActual = request('estado', 'todas');
                     $estados = [
                         'todas' => 'Todas',
-                        'agendada' => 'Agendadas',
-                        'completada' => 'Atendidas',
-                        'cancelada' => 'Ausentes'
+                        'Agendada' => 'Agendadas',
+                        'Atendida' => 'Atendidas',
+                        'Ausente' => 'Ausentes'
                     ];
                 @endphp
                 @foreach($estados as $key => $label)
@@ -93,15 +93,15 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
                                         $estado = $cita['estado'];
-                                        $clase = $estado === 'agendada' ? 'bg-green-100 text-green-800' : ($estado === 'completada' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800');
-                                        $texto = $estado === 'agendada' ? 'Agendada' : ($estado === 'completada' ? 'Atendida' : 'Ausente');
+                                        $clase = $estado === 'Agendada' ? 'bg-green-100 text-green-800' : ($estado === 'Atendida' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800');
+                                        $texto = $estado === 'Agendada' ? 'Agendada' : ($estado === 'Atendida' ? 'Atendida' : 'Ausente');
                                     @endphp
                                     <span class="px-2 py-1 text-xs rounded-full {{ $clase }}">
                                         {{ $texto }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    @if($cita['estado'] === 'agendada')
+                                    @if($cita['estado'] === 'Agendada')
                                         <div class="flex items-center gap-2">
                                             <a href="{{ route('recepcionista.citas.editar', $cita['id']) }}" 
                                                class="inline-flex items-center px-2 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700" title="Editar">

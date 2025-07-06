@@ -48,4 +48,19 @@ class Cita extends Model
     {
         return $this->belongsTo(HoraConsulta::class, 'id_hora');
     }
+
+    public function diagnostico()
+    {
+        return $this->hasOne(Diagnostico::class, 'id_cita', 'id_cita');
+    }
+
+    public function indicaciones()
+    {
+        return $this->hasOne(Indicaciones::class, 'id_cita', 'id_cita');
+    }
+    
+    public function apuntes()
+    {
+        return $this->hasOne(Apuntes::class, 'id_cita', 'id_cita');
+    }
 }

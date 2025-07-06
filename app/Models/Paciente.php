@@ -42,7 +42,7 @@ class Paciente extends Model
 
     public function historialClinico()
     {
-        return $this->hasMany(HistorialClinico::class);
+        return $this->hasMany(HistorialClinico::class, 'id_paciente', 'id_paciente');
     }
 
     public function getNombreCompletoAttribute()

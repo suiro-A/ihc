@@ -49,9 +49,9 @@
                         <select name="estado" id="estado"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
                             required>
-                            <option value="agendada" {{ old('estado', $cita['estado']) === 'agendada' ? 'selected' : '' }}>Agendada</option>
-                            <option value="completada" {{ old('estado', $cita['estado']) === 'completada' ? 'selected' : '' }}>Atendida</option>
-                            <option value="cancelada" {{ old('estado', $cita['estado']) === 'cancelada' ? 'selected' : '' }}>Ausente</option>
+                            <option value="Agendada" {{ old('estado', $cita['estado']) === 'Agendada' ? 'selected' : '' }}>Agendada</option>
+                            <option value="Atendida" {{ old('estado', $cita['estado']) === 'Atendida' ? 'selected' : '' }}>Atendida</option>
+                            <option value="Ausente" {{ old('estado', $cita['estado']) === 'Ausente' ? 'selected' : '' }}>Ausente</option>
                         </select>
                         @error('estado')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

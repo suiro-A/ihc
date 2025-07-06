@@ -58,9 +58,9 @@ class RecepcionistaController extends Controller
         // Calcular estadísticas reales
         $stats = [
             'citas_hoy' => $citasHoy->count(),
-            'proxima_cita' => $citasHoy->where('estado', 'agendada')->first(),
+            'proxima_cita' => $citasHoy->where('estado', 'Agendada')->first(),
             'pacientes_registrados' => \App\Models\Paciente::count(),
-            'citas_confirmadas' => $citasHoy->where('estado', 'agendada')->count(),
+            'citas_confirmadas' => $citasHoy->where('estado', 'Agendada')->count(),
         ];
         
         return view('recepcionista.dashboard', compact('stats', 'citasHoy'));
@@ -414,7 +414,7 @@ public function buscarPacientes(Request $request)
         // Obtener citas ya agendadas
         $citasExistentes = \DB::table('cita')
             ->join('hora_consulta', 'cita.id_hora', '=', 'hora_consulta.id_hora')
-            ->where('cita.estado', '!=', 'cancelada')
+            ->where('cita.estado', '!=', 'Ausente')
             ->select('cita.id_medico', 'cita.fecha', 'hora_consulta.hora_inicio')
             ->get()
             ->groupBy(['id_medico', 'fecha']);
@@ -460,7 +460,7 @@ public function buscarPacientes(Request $request)
             $citaExistente = \App\Models\Cita::where('id_medico', $request->doctor_id)
                 ->where('fecha', $request->fecha)
                 ->where('id_hora', $horaConsulta->id_hora)
-                ->where('estado', '!=', 'cancelada')
+                ->where('estado', '!=', 'Ausente')
                 ->exists();
 
             if ($citaExistente) {
@@ -473,7 +473,7 @@ public function buscarPacientes(Request $request)
                 'id_medico' => $request->doctor_id,
                 'id_especialidad' => $medico->especialidad,
                 'motivo' => $request->motivo,
-                'estado' => 'agendada',
+                'estado' => 'Agendada',
                 'id_hora' => $horaConsulta->id_hora,
                 'fecha' => $request->fecha,
             ]);
@@ -551,7 +551,7 @@ public function buscarPacientes(Request $request)
         // Obtener citas ya agendadas
         $citasExistentes = \DB::table('cita')
             ->join('hora_consulta', 'cita.id_hora', '=', 'hora_consulta.id_hora')
-            ->where('cita.estado', '!=', 'cancelada')
+            ->where('cita.estado', '!=', 'Ausente')
             ->select('cita.id_cita', 'cita.id_medico', 'cita.fecha', 'hora_consulta.hora_inicio')
             ->get()
             ->groupBy(['id_medico', 'fecha']);
@@ -566,7 +566,7 @@ public function buscarPacientes(Request $request)
                 'fecha' => 'required|date',
                 'hora' => 'required',
                 'motivo' => 'required|string',
-                'estado' => 'required|in:agendada,completada,cancelada',
+                'estado' => 'required|in:Agendada,Atendida,Ausente',
             ]);
 
             try {
@@ -590,7 +590,7 @@ public function buscarPacientes(Request $request)
                     $citaExistente = Cita::where('id_medico', $request->doctor_id)
                         ->where('fecha', $request->fecha)
                         ->where('id_hora', $horaConsulta->id_hora)
-                        ->where('estado', '!=', 'cancelada')
+                        ->where('estado', '!=', 'Ausente')
                         ->where('id_cita', '!=', $id) // Excluir la cita actual
                         ->exists();
 
@@ -644,7 +644,7 @@ public function buscarPacientes(Request $request)
 
         // En un sistema real, aquí actualizaríamos el estado en la base de datos
         
-        return back()->with('success', 'Cita cancelada exitosamente.');
+        return back()->with('success', 'Cita marcada como ausente exitosamente.');
     }
 
     public function historialCitasPaciente($id)

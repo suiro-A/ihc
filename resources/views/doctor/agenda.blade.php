@@ -16,7 +16,7 @@
                     <button type="button" 
                             class="px-4 py-2 text-sm font-medium rounded-l-lg {{ request('vista', 'dia') === 'dia' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
                             onclick="cambiarVista('dia')">
-                        Día
+                        Hoy
                     </button>
                     <button type="button" 
                             class="px-4 py-2 text-sm font-medium border-x {{ request('vista', 'dia') === 'semana' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
@@ -140,8 +140,8 @@
                                             <div>
                                                 <div class="flex items-center gap-2">
                                                     <span class="font-medium">{{ $cita['paciente']['nombre'] }} {{ $cita['paciente']['apellidos'] }}</span>
-                                                    <span class="px-2 py-1 text-xs rounded-full {{ $cita['estado'] === 'agendada' ? 'bg-green-100 text-green-800' : ($cita['estado'] === 'completada' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800') }}">
-                                                        {{ ucfirst($cita['estado']) }}
+                                                    <span class="px-2 py-1 text-xs rounded-full {{ $cita['estado'] === 'Agendada' ? 'bg-green-100 text-green-800' : ($cita['estado'] === 'Atendida' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800') }}">
+                                                        {{ $cita['estado'] }}
                                                     </span>
                                                 </div>
                                                 <p class="text-sm text-gray-500">{{ $cita['motivo'] }}</p>
@@ -240,8 +240,12 @@
                                  @if($citasDia->count() > 0) onclick="@if($citasDia->count() == 1) mostrarModalCita({{ json_encode($citasDia->first()) }}) @else mostrarModalHorario('{{ $hora }}', '{{ $dia->format('Y-m-d') }}', {{ json_encode($citasDia->toArray()) }}) @endif" @endif>
                                 @if($citasDia->count() > 0)
                                     @foreach($citasDia as $cita)
+                                        @php
+                                            $colorPunto = $cita['estado'] === 'Agendada' ? 'bg-green-500' : 
+                                                         ($cita['estado'] === 'Atendida' ? 'bg-blue-500' : 'bg-red-500');
+                                        @endphp
                                         <div class="text-xs p-2 rounded mb-1 flex items-center">
-                                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 flex-shrink-0"></div>
+                                            <div class="w-2 h-2 {{ $colorPunto }} rounded-full mr-2 flex-shrink-0"></div>
                                             <div class="font-bold text-gray-900 truncate">{{ $cita['paciente']['nombre'] }}</div>
                                         </div>
                                     @endforeach
@@ -300,8 +304,12 @@
                             </div>
                             @if($esMesActual && $citasDia->count() > 0)
                                 @foreach($citasDia->take(3) as $cita)
+                                    @php
+                                        $colorPunto = $cita['estado'] === 'Agendada' ? 'bg-green-500' : 
+                                                     ($cita['estado'] === 'Atendida' ? 'bg-blue-500' : 'bg-red-500');
+                                    @endphp
                                     <div class="text-xs p-1 rounded mb-1 flex items-center">
-                                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2 flex-shrink-0"></div>
+                                        <div class="w-2 h-2 {{ $colorPunto }} rounded-full mr-2 flex-shrink-0"></div>
                                         <div class="font-bold text-gray-900 truncate">{{ $cita['paciente']['nombre'] }}</div>
                                     </div>
                                 @endforeach
@@ -382,9 +390,9 @@
             
             // Estado con colores
             let estadoClass = '';
-            if (cita.estado === 'agendada') {
+            if (cita.estado === 'Agendada') {
                 estadoClass = 'bg-green-100 text-green-800';
-            } else if (cita.estado === 'completada') {
+            } else if (cita.estado === 'Atendida') {
                 estadoClass = 'bg-blue-100 text-blue-800';
             } else {
                 estadoClass = 'bg-red-100 text-red-800';
@@ -444,9 +452,9 @@
             let citasHtml = '';
             citas.forEach(cita => {
                 let estadoClass = '';
-                if (cita.estado === 'agendada') {
+                if (cita.estado === 'Agendada') {
                     estadoClass = 'bg-green-100 text-green-800';
-                } else if (cita.estado === 'completada') {
+                } else if (cita.estado === 'Atendida') {
                     estadoClass = 'bg-blue-100 text-blue-800';
                 } else {
                     estadoClass = 'bg-red-100 text-red-800';
@@ -491,9 +499,9 @@
             let citasHtml = '';
             citas.forEach(cita => {
                 let estadoClass = '';
-                if (cita.estado === 'agendada') {
+                if (cita.estado === 'Agendada') {
                     estadoClass = 'bg-green-100 text-green-800';
-                } else if (cita.estado === 'completada') {
+                } else if (cita.estado === 'Atendida') {
                     estadoClass = 'bg-blue-100 text-blue-800';
                 } else {
                     estadoClass = 'bg-red-100 text-red-800';

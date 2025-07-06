@@ -65,15 +65,15 @@
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     @php
                                         $estado = $cita['estado'];
-                                        $clase = $estado === 'agendada' ? 'bg-green-100 text-green-800' : ($estado === 'completada' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800');
-                                        $texto = $estado === 'agendada' ? 'Agendada' : ($estado === 'completada' ? 'Atendida' : 'Ausente');
+                                        $clase = $estado === 'Agendada' ? 'bg-green-100 text-green-800' : ($estado === 'Atendida' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800');
+                                        $texto = $estado === 'Agendada' ? 'Agendada' : ($estado === 'Atendida' ? 'Atendida' : 'Ausente');
                                     @endphp
                                     <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full {{ $clase }}">
                                         {{ $texto }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-center">
-                                    @if($cita['estado'] === 'agendada')
+                                    @if($cita['estado'] === 'Agendada')
                                         <a href="{{ route('recepcionista.citas.editar', $cita['id']) }}" class="inline-flex items-center text-gray-600 hover:text-yellow-600" title="Editar">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>

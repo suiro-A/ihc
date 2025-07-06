@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/citas/{id}/examenes', [DoctorController::class, 'guardarExamenes'])->name('citas.examenes');
         Route::post('/citas/{id}/receta', [DoctorController::class, 'guardarReceta'])->name('citas.receta');
         Route::post('/citas/{id}/indicaciones', [DoctorController::class, 'guardarIndicaciones'])->name('citas.indicaciones');
+        Route::patch('/citas/{id}/estado', [DoctorController::class, 'actualizarEstado'])->name('citas.actualizar-estado');
     });
 
     // Rutas del Recepcionista

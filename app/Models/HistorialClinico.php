@@ -18,7 +18,7 @@ class HistorialClinico extends Model
 
     public function paciente()
     {
-        return $this->belongsTo(Paciente::class, 'id_paciente');
+        return $this->belongsTo(Paciente::class, 'id_paciente', 'id_paciente');
     }
 
     public function citas()

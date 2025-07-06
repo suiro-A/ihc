@@ -25,9 +25,15 @@
             </a>
             <a href="?tab=apuntes" class="px-4 py-2 rounded-md text-sm {{ $tab == 'apuntes' ? 'bg-white shadow' : '' }}">
                 Apuntes
+                @if($apuntesActual)
+                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full ml-1"></span>
+                @endif
             </a>
             <a href="?tab=diagnostico" class="px-4 py-2 rounded-md text-sm {{ $tab == 'diagnostico' ? 'bg-white shadow' : '' }}">
                 Diagnóstico
+                @if(isset($diagnosticoActual) && $diagnosticoActual)
+                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full ml-1"></span>
+                @endif
             </a>
             <a href="?tab=examenes" class="px-4 py-2 rounded-md text-sm {{ $tab == 'examenes' ? 'bg-white shadow' : '' }}">
                 Exámenes
@@ -37,6 +43,9 @@
             </a>
             <a href="?tab=indicaciones" class="px-4 py-2 rounded-md text-sm {{ $tab == 'indicaciones' ? 'bg-white shadow' : '' }}">
                 Indicaciones
+                @if(isset($indicacionesActual) && $indicacionesActual)
+                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full ml-1"></span>
+                @endif
             </a>
         </div>
     </div>
@@ -88,9 +97,14 @@
                         
                         <!-- Botones de Acción Centrados -->
                         <div class="flex gap-4 justify-center pt-6">
-                            <button class="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium">
-                                Ausente
-                            </button>
+                            <form id="form-ausente" method="POST" action="{{ route('doctor.citas.actualizar-estado', $cita['id']) }}" class="inline-block">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="estado" value="Ausente">
+                                <button type="button" id="btn-ausente" class="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium">
+                                    Ausente
+                                </button>
+                            </form>
                             <a href="?tab=apuntes" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
                                 Iniciar Consulta
                             </a>
@@ -101,29 +115,35 @@
                     <h3 class="text-lg font-bold mb-4">Apuntes de la Consulta</h3>
                     <form method="POST" action="{{ route('doctor.citas.apuntes', $cita['id']) }}">
                         @csrf
-                        <div class="space-y-4">
+                        <div class="space-y-6">
+                            <!-- Síntomas Reportados (CRÍTICO) -->
                             <div>
-                                <label class="block text-sm font-medium mb-1">Motivo de Consulta</label>
-                                <textarea name="motivo_consulta" rows="3" class="w-full border rounded-md p-2"></textarea>
+                                <label class="block text-sm font-medium mb-1 text-red-600">Síntomas Reportados *</label>
+                                <textarea name="sintomas_reportados" rows="3" 
+                                         class="w-full border rounded-md p-2 @error('sintomas_reportados') border-red-500 @enderror" 
+                                         placeholder="¿Qué síntomas describe el paciente? Ej: Dolor de cabeza intenso desde hace 3 días..."
+                                         >{{ old('sintomas_reportados', $apuntesActual->sintomas_reportados ?? '') }}</textarea>
+                                @error('sintomas_reportados')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
+
+                            <!-- Exploración Física (CRÍTICO) -->
                             <div>
-                                <label class="block text-sm font-medium mb-1">Síntomas</label>
-                                <textarea name="sintomas" rows="3" class="w-full border rounded-md p-2"></textarea>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Temperatura</label>
-                                    <input type="text" name="temperatura" class="w-full border rounded-md p-2" placeholder="36.5°C">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Presión</label>
-                                    <input type="text" name="presion" class="w-full border rounded-md p-2" placeholder="120/80">
-                                </div>
+                                <label class="block text-sm font-medium mb-1 text-red-600">Exploración Física *</label>
+                                <textarea name="exploracion_fisica" rows="3" 
+                                         class="w-full border rounded-md p-2 @error('exploracion_fisica') border-red-500 @enderror" 
+                                         placeholder="Resultados del examen físico. Ej: Rigidez de nuca presente, pupilas reactivas..."
+                                         >{{ old('exploracion_fisica', $apuntesActual->exploracion_fisica ?? '') }}</textarea>
+                                @error('exploracion_fisica')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
+                        
                         <div class="mt-6 flex gap-2">
                             <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                                Guardar
+                                {{ $apuntesActual ? 'Actualizar' : 'Guardar' }}
                             </button>
                             <a href="?tab=diagnostico" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                                 Siguiente →
@@ -133,21 +153,25 @@
 
                 @elseif($tab == 'diagnostico')
                     <h3 class="text-lg font-bold mb-4">Diagnóstico</h3>
+
                     <form method="POST" action="{{ route('doctor.citas.diagnostico', $cita['id']) }}">
                         @csrf
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1">Diagnóstico</label>
-                                <textarea name="diagnostico" rows="4" class="w-full border rounded-md p-2"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Indicaciones</label>
-                                <textarea name="indicaciones" rows="3" class="w-full border rounded-md p-2"></textarea>
+                                <label class="block text-sm font-medium mb-1 text-red-600">Diagnóstico *</label>
+                                <input type="text" name="diagnostico" 
+                                       class="w-full border rounded-md p-2 @error('diagnostico') border-red-500 @enderror"
+                                       placeholder="Ej: Hipertensión arterial, Diabetes tipo 2, etc."
+                                       value="{{ old('diagnostico', $diagnosticoActual->descripcion ?? '') }}"
+                                       maxlength="255">
+                                @error('diagnostico')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
                         <div class="mt-6 flex gap-2">
                             <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                                Guardar
+                                {{ $diagnosticoActual ? 'Actualizar' : 'Guardar' }}
                             </button>
                             <a href="?tab=examenes" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                                 Siguiente →
@@ -221,25 +245,39 @@
                     </form>
 
                 @elseif($tab == 'indicaciones')
-                    <h3 class="text-lg font-bold mb-4">Indicaciones Finales</h3>
+                    <h3 class="text-lg font-bold mb-4">Indicaciones</h3>
                     <form method="POST" action="{{ route('doctor.citas.indicaciones', $cita['id']) }}">
                         @csrf
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1">Indicaciones Generales</label>
-                                <textarea name="indicaciones_generales" rows="4" class="w-full border rounded-md p-2"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Recomendaciones</label>
-                                <textarea name="recomendaciones" rows="3" class="w-full border rounded-md p-2"></textarea>
+                                <label class="block text-sm font-medium mb-1 text-red-600">Indicaciones *</label>
+                                <textarea name="indicaciones" rows="5" 
+                                         class="w-full border rounded-md p-2 @error('indicaciones') border-red-500 @enderror"
+                                         placeholder="Escriba las indicaciones y recomendaciones para el paciente..."
+                                         >{{ old('indicaciones', $indicacionesActual->descripcion ?? '') }}</textarea>
+                                @error('indicaciones')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
-                        <div class="mt-6">
-                            <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                                Finalizar Consulta ✓
+                        <div class="mt-6 flex gap-2">
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                {{ $indicacionesActual ? 'Actualizar' : 'Guardar' }}
                             </button>
                         </div>
                     </form>
+
+                    <!-- Formulario separado FUERA -->
+                    <div class="mt-4 flex justify-center">
+                        <form id="form-finalizar" method="POST" action="{{ route('doctor.citas.actualizar-estado', $cita['id']) }}">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="estado" value="Atendida">
+                            <button type="button" id="btn-finalizar" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Finalizar Consulta ✓
+                            </button>
+                        </form>
+                    </div>
                 @endif
             </div>
         </div>
@@ -249,7 +287,7 @@
             <!-- Información del Paciente -->
             <div class="bg-white rounded-lg shadow">
                 <div class="p-6 border-b">
-                    <h3 class="text-lg font-semibold">Información del Paciente</h3>
+                    <h3 class="text-lg font-bold">Información del Paciente</h3>
                 </div>
                 <div class="p-6 space-y-4">
                     <div class="flex items-center gap-4">
@@ -259,7 +297,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h4 class="font-medium">{{ $cita['paciente']['nombres'] }} {{ $cita['paciente']['apellidos'] }}</h4>
+                            <h4 class="font-semibold">{{ $cita['paciente']['nombres'] }} {{ $cita['paciente']['apellidos'] }}</h4>
                             <p class="text-sm text-gray-500">
                                 @if(isset($cita['paciente']['fecha_nac']))
                                     @php
@@ -292,7 +330,7 @@
             <!-- Historial Reciente -->
             <div class="bg-white rounded-lg shadow">
                 <div class="p-6 border-b">
-                    <h3 class="text-lg font-semibold">Historial Reciente</h3>
+                    <h3 class="text-lg font-bold">Historial Reciente</h3>
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
@@ -318,3 +356,73 @@
 </div>
 
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Función para el botón Ausente
+    const btnAusente = document.getElementById('btn-ausente');
+    if (btnAusente) {
+        btnAusente.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: "¿Realmente quieres marcar la cita como ausente?",
+                text: "Esta acción cambiará el estado de la cita",
+                icon: "question",
+                showDenyButton: true,
+                showCancelButton: false,
+                confirmButtonText: "Confirmar",
+                denyButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Enviar el formulario
+                    document.getElementById('form-ausente').submit();
+                }
+            });
+        });
+    }
+    
+    // Función para el botón Finalizar Consulta
+    const btnFinalizar = document.getElementById('btn-finalizar');
+    if (btnFinalizar) {
+        btnFinalizar.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Verificar campos obligatorios
+            const tieneApuntes = {{ $apuntesActual ? 'true' : 'false' }};
+            const tieneDiagnostico = {{ isset($diagnosticoActual) && $diagnosticoActual ? 'true' : 'false' }};
+            const tieneIndicaciones = {{ isset($indicacionesActual) && $indicacionesActual ? 'true' : 'false' }};
+            
+            const faltantes = [];
+            if (!tieneApuntes) faltantes.push('Apuntes');
+            if (!tieneDiagnostico) faltantes.push('Diagnóstico');
+            if (!tieneIndicaciones) faltantes.push('Indicaciones');
+            
+            if (faltantes.length > 0) {
+                Swal.fire({
+                    title: "Faltan campos obligatorios",
+                    text: `Debe completar: ${faltantes.join(', ')}`,
+                    icon: "warning",
+                    confirmButtonText: "Entendido"
+                });
+                return;
+            }
+            
+            Swal.fire({
+                title: "¿Finalizar la consulta?",
+                text: "Esto marcará la cita como atendida",
+                icon: "question",
+                showDenyButton: true,
+                showCancelButton: false,
+                confirmButtonText: "Finalizar",
+                denyButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Enviar el formulario
+                    document.getElementById('form-finalizar').submit();
+                }
+            });
+        });
+    }
+});
+</script>
