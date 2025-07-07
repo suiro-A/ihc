@@ -5,7 +5,7 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center gap-4 mb-6">
-        <a href="{{ route('recepcionista.pacientes.buscar') }}" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+        <a href="#" onclick="window.history.back(); return false;" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
@@ -33,14 +33,14 @@
                             <input type="text" name="nombres" id="nombres" required
                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('nombres', $paciente->nombres) }}"
-                                   placeholder="Nombres">
+                                   placeholder="Ingrese Nombres">
                         </div>
                         <div>
                             <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos</label>
                             <input type="text" name="apellidos" id="apellidos" required
                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('apellidos', $paciente->apellidos) }}"
-                                   placeholder="Apellidos">
+                                   placeholder="Ingrese Apellidos">
                         </div>
                     </div>
                     <!-- Segunda fila: DNI y Fecha de Nacimiento -->
@@ -50,13 +50,14 @@
                             <input type="text" name="dni" id="dni" required
                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('dni', $paciente->dni) }}"
-                                   placeholder="ingrese el DNI o documento">
+                                   placeholder="Ingrese DNI o documento">
                         </div>
                         <div>
                             <label for="fecha_nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
                             <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required
                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                                   value="{{ old('fecha_nacimiento', $paciente->fecha_nac ? $paciente->fecha_nac->format('Y-m-d') : '') }}">
+                                   value="{{ old('fecha_nacimiento', $paciente->fecha_nac ? $paciente->fecha_nac->format('Y-m-d') : '') }}"
+                                   placeholder="Ingrese Fecha de Nacimiento">
                         </div>
                     </div>
                     <!-- Tercera fila: Género -->
@@ -83,14 +84,14 @@
                             <input type="tel" name="telefono" id="telefono" required
                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('telefono', $paciente->telefono) }}"
-                                   placeholder="123456789">
+                                   placeholder="Ingrese Teléfono">
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
                             <input type="email" name="email" id="email"
                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('email', $paciente->correo) }}"
-                                   placeholder="ejemplo@correo.com">
+                                   placeholder="Ingrese Correo Electrónico">
                         </div>
                     </div>
                 </div>
@@ -151,12 +152,13 @@
                 <!-- Botones -->
                 <div class="flex justify-between items-center pt-6">
                     <a href="{{ route('recepcionista.pacientes.buscar') }}" 
-                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest bg-white hover:bg-gray-50">
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-base text-gray-700 uppercase tracking-widest bg-white hover:bg-gray-50">
                         Cancelar
                     </a>
                     <button type="submit" 
-                            class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-                        Actualizar Paciente
+                            class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-base text-white uppercase tracking-widest hover:bg-green-700">
+                            <img src="{{ asset('icons/paciente_editar.png') }}" alt="Actualizar Paciente" class="w-8 h-8 mr-3">
+                            Actualizar Paciente
                     </button>
                 </div>
             </div>

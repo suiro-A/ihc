@@ -149,8 +149,8 @@ public function guardarPaciente(Request $request)
         }
 
         session()->flash('pacienteCreate', [
-            'title' => "¡Bien hecho!",
-            'text' => "Paciente creado correctamente",
+            'title' => "¡Paciente Creado!",
+            'text' => "El usuario ha sido creado exitosamente",
             'icon' => "success"
         ]);
 
@@ -315,8 +315,8 @@ public function buscarPacientes(Request $request)
             }
 
             session()->flash('swal', [
-                'title' => "¡Bien hecho!",
-                'text' => "Paciente actualizado correctamente",
+                'title' => "Paciente Actualizado!",
+                'text' => "El paciente ha sido actualizado correctamente",
                 'icon' => "success"
             ]);
 
