@@ -212,16 +212,20 @@ class AdminController extends Controller
     }
 
     try {
+        $estadoAnterior = $usuario->estado;
         $usuario->estado = !$usuario->estado;
         $usuario->save();
 
-        $estado = $usuario->estado ? 'activado' : 'desactivado';
+        $accion = $usuario->estado ? 'activado' : 'desactivado';
+        $nombreCompleto = $usuario->nombres . ' ' . $usuario->apellidos;
 
         // Mensaje de éxito con SweetAlert
         session()->flash('swal', [
-            'title' => "¡Usuario " . ucfirst($estado) . "!",
-            'text' => "El usuario ha sido " . $estado . " exitosamente",
-            'icon' => "success"
+            'title' => "¡Usuario " . ucfirst($accion) . "!",
+            'text' => "El usuario \"$nombreCompleto\" ha sido $accion exitosamente",
+            'icon' => "success",
+            'timer' => 3000,
+            'showConfirmButton' => false
         ]);
 
         return back();

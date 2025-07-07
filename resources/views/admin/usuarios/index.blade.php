@@ -75,12 +75,15 @@
                                            class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded hover:bg-yellow-200" title="Editar">
                                            <img src="{{ asset('icons/usuario_editar.png') }}" alt="Crear" class="w-9 h-9">
                                         </a>
-                                        <form action="{{ route('admin.usuarios.toggle', $usuario->id_usuario) }}" method="POST" class="inline">
+                                        <form action="{{ route('admin.usuarios.toggle', $usuario->id_usuario) }}" method="POST" class="inline toggle-form">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" 
-                                                    class="inline-flex items-center px-2 py-1 {{ $usuario->estado ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} text-xs rounded"
-                                                    title="{{ $usuario->estado ? 'Desactivar' : 'Activar' }}">
+                                            <button type="button" 
+                                                    class="inline-flex items-center px-2 py-1 {{ $usuario->estado ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} text-xs rounded toggle-button"
+                                                    title="{{ $usuario->estado ? 'Desactivar' : 'Activar' }}"
+                                                    data-usuario-nombre="{{ $usuario->nombres }} {{ $usuario->apellidos }}"
+                                                    data-estado-actual="{{ $usuario->estado ? 'activo' : 'inactivo' }}"
+                                                    data-accion="{{ $usuario->estado ? 'desactivar' : 'activar' }}">
                                                 @if($usuario->estado)
                                                     <img src="{{ asset('icons/desactivar.png') }}" alt="paciente" class="w-8 h-8 inline-block">
                                                 @else
@@ -122,4 +125,54 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejar clicks en botones de toggle
+    document.querySelectorAll('.toggle-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('.toggle-form');
+            const nombreUsuario = this.dataset.usuarioNombre;
+            const estadoActual = this.dataset.estadoActual;
+            const accion = this.dataset.accion;
+            
+            // Determinar el texto y colores según la acción
+            const textoAccion = accion === 'activar' ? 'activar' : 'desactivar';
+            const colorBoton = accion === 'activar' ? '#10b981' : '#ef4444';
+            const iconoAccion = accion === 'activar' ? 'question' : 'warning';
+            
+            Swal.fire({
+                title: `¿${textoAccion.charAt(0).toUpperCase() + textoAccion.slice(1)} usuario?`,
+                html: `¿Estás seguro que deseas <strong>${textoAccion}</strong> al usuario:<br><strong>"${nombreUsuario}"</strong>?`,
+                icon: iconoAccion,
+                showCancelButton: true,
+                confirmButtonColor: colorBoton,
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: `Sí, ${textoAccion}`,
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true,
+                focusCancel: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar loading mientras se procesa
+                    Swal.fire({
+                        title: 'Procesando...',
+                        text: `${textoAccion.charAt(0).toUpperCase() + textoAccion.slice(1)}ando usuario`,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Enviar el formulario
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
+
 @endsection

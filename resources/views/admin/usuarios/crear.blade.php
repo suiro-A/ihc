@@ -139,11 +139,12 @@
           <!-- Botones al final del bloque blanco, alineados a los extremos -->
           <div class="flex justify-between items-center pt-6">
             <a href="{{ route('admin.usuarios.index') }}"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest bg-white hover:bg-gray-50">
+              class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-md font-semibold text-sm text-gray-700 uppercase tracking-widest bg-white hover:bg-gray-50 min-w-[140px] h-10">
               Cancelar
             </a>
             <button type="submit"
-              class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
+              class="inline-flex items-center justify-center px-6 py-3 bg-green-600 border border-transparent rounded-md font-semibold text-sm text-white uppercase tracking-widest hover:bg-green-700 min-w-[140px] h-10">
+              <img src="{{ asset('icons/usuario_agregar.png') }}" alt="Crear" class="w-8 h-8 mr-2">
               Crear Usuario
             </button>
           </div>
