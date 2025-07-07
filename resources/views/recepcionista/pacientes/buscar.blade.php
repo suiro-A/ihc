@@ -86,19 +86,26 @@ new DataTable('#example', {
             }
         ]
         ,
-    dom: '<"row mb-3"<"col-9"f><"col-3"l>>t<"row mt-6"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>'
-    });
+    dom: '<"row mb-3"<"col-9"f><"col-3"l>>t<"row mt-6"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>',
 
-    document.addEventListener('DOMContentLoaded', function () {
-
-    
+    initComplete: function () {
         const searchInput = document.querySelector('#dt-search-0');
         if (searchInput) {
-            searchInput.placeholder = 'Buscar por Nombre, Dni o Correo...';
-            // searchInput.style.border = '2px solid #4CAF50';
+            searchInput.placeholder = 'Buscar por Nombre, DNI o Correo...';
         }
+    }
+    });
+
+//     document.addEventListener('DOMContentLoaded', function () {
+
+    
+//         const searchInput = document.querySelector('#dt-search-0');
+//         if (searchInput) {
+//             searchInput.placeholder = 'Buscar por Nombre, Dni o Correo...';
+//             // searchInput.style.border = '2px solid #4CAF50';
+//         }
   
-});
+// });
 
 // document.addEventListener('DOMContentLoaded', function() {
 //     const buscador = document.querySelector('input[name="buscar"]');
