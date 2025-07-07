@@ -35,14 +35,14 @@
                 <label for="nombres" class="block text-sm font-medium text-gray-700">Nombre</label>
                 <input type="text" name="nombres" id="nombres" required value="{{ old('nombres', $usuario->nombres) }}"
                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                  placeholder="Nombre" oninput="validateNombres(this)">
+                  placeholder="Ingrese Nombre" oninput="validateNombres(this)">
                 <div id="nombres-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten letras y espacios</div>
               </div>
               <div>
                 <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos</label>
                 <input type="text" name="apellidos" id="apellidos" required value="{{ old('apellidos', $usuario->apellidos ?? '') }}"
                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                  placeholder="Apellidos" oninput="validateApellidos(this)">
+                  placeholder="Ingrese Apellidos" oninput="validateApellidos(this)">
                 <div id="apellidos-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten letras y espacios</div>
               </div>
             </div>
@@ -51,7 +51,7 @@
                 <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
                 <input type="tel" name="telefono" id="telefono" value="{{ old('telefono', $usuario->telefono ?? '') }}"
                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                  placeholder="123456789" oninput="validateTelefono(this)" maxlength="9">
+                  placeholder="Ingrese Teléfono" oninput="validateTelefono(this)" maxlength="9">
                 <div id="telefono-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten números (máximo 9 dígitos)</div>
               </div>
             </div>
@@ -66,7 +66,7 @@
                 <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
                 <input type="email" name="email" id="email" required value="{{ old('email', $usuario->correo) }}"
                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                  placeholder="ejemplo@clinica.com">
+                  placeholder="Ingrese Correo Electrónico">
               </div>
               <div>
                 <label for="role" class="block text-sm font-medium text-gray-700">Rol</label>
@@ -106,7 +106,7 @@
               <input type="text" name="colegiatura" id="colegiatura" maxlength="6"
                 oninput="validateColegiatura(this)"
                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                placeholder="123456" value="{{ old('colegiatura', $usuario->medico?->num_colegiatura) }}">
+                placeholder="Ingrese Número de Colegiatura" value="{{ old('colegiatura', $usuario->medico?->num_colegiatura) }}">
               <div id="colegiatura-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten 6 números</div>
             </div>
           </div>

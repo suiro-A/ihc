@@ -149,7 +149,7 @@
                                           {{ request()->routeIs('admin.disponibilidad.*') ? 'bg-green-100 font-bold text-green-700 border-r-4 border-green-500' : '' }}
                                           px-4 justify-start"
                                 >
-                                    <img src="{{ asset('icons/definir_horario.png') }}" alt="Disponibilidad" class="w-7 h-7 flex-shrink-0 mr-3">
+                                    <img src="{{ asset('icons/horario.png') }}" alt="Disponibilidad" class="w-7 h-7 flex-shrink-0 mr-3">
                                     <span>Disponibilidad</span>
                                 </a>
                             </li>

@@ -83,7 +83,7 @@
                     </div>
 
                     <div class="flex justify-end gap-4">
-                        <button type="button" onclick="window.history.back()" 
+                        <button type="button" onclick="window.location.reload()" 
                                 class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest bg-white hover:bg-gray-50">
                             Cancelar
                         </button>

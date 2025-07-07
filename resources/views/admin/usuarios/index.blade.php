@@ -72,22 +72,22 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                     <div class="flex items-center justify-center gap-2">
                                         <a href="{{ route('admin.usuarios.editar', $usuario->id_usuario) }}" 
-                                           class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded hover:bg-yellow-200" title="Editar">
-                                           <img src="{{ asset('icons/usuario_editar.png') }}" alt="Crear" class="w-9 h-9">
+                                           class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded hover:bg-yellow-200" title="Editar Usuario">
+                                           <img src="{{ asset('icons/usuario_editar.png') }}" alt="Editar Usuario" class="w-9 h-9">
                                         </a>
                                         <form action="{{ route('admin.usuarios.toggle', $usuario->id_usuario) }}" method="POST" class="inline toggle-form">
                                             @csrf
                                             @method('PATCH')
                                             <button type="button" 
                                                     class="inline-flex items-center px-2 py-1 {{ $usuario->estado ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} text-xs rounded toggle-button"
-                                                    title="{{ $usuario->estado ? 'Desactivar' : 'Activar' }}"
+                                                    title="{{ $usuario->estado ? 'Desactivar Usuario' : 'Activar Usuario' }}"
                                                     data-usuario-nombre="{{ $usuario->nombres }} {{ $usuario->apellidos }}"
                                                     data-estado-actual="{{ $usuario->estado ? 'activo' : 'inactivo' }}"
                                                     data-accion="{{ $usuario->estado ? 'desactivar' : 'activar' }}">
                                                 @if($usuario->estado)
-                                                    <img src="{{ asset('icons/desactivar.png') }}" alt="paciente" class="w-8 h-8 inline-block">
+                                                    <img src="{{ asset('icons/desactivar.png') }}" alt="Desactivar Usuario" class="w-8 h-8 inline-block">
                                                 @else
-                                                    <img src="{{ asset('icons/activar.png') }}" alt="paciente" class="w-8 h-8 inline-block">
+                                                    <img src="{{ asset('icons/activar.png') }}" alt="Activar Usuario" class="w-8 h-8 inline-block">
                                                 @endif
                                             </button>
                                         </form>

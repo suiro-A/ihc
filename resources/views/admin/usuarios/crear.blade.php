@@ -36,14 +36,14 @@
                 <label for="nombres" class="block text-sm font-medium text-gray-700">Nombre</label>
                 <input type="text" name="nombres" id="nombres" required
                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                  placeholder="Nombre" oninput="validateNombres(this)">
+                  placeholder="Ingrese Nombre" oninput="validateNombres(this)">
                 <div id="nombres-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten letras y espacios</div>
               </div>
               <div>
                 <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos</label>
                 <input type="text" name="apellidos" id="apellidos" required
                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                  placeholder="Apellidos" oninput="validateApellidos(this)">
+                  placeholder="Ingrese Apellidos" oninput="validateApellidos(this)">
                 <div id="apellidos-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten letras y espacios</div>
               </div>
             </div>
@@ -58,7 +58,7 @@
                 <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
                 <input type="tel" name="telefono" id="telefono"
                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                  placeholder="123456789" oninput="validateTelefono(this)" maxlength="9">
+                  placeholder="Ingrese Teléfono" oninput="validateTelefono(this)" maxlength="9">
                 <div id="telefono-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten números (máximo 9 dígitos)</div>
               </div>
             </div>
@@ -73,7 +73,7 @@
                 <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
                 <input type="email" name="email" id="email" required
                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                  placeholder="ejemplo@clinica.com" onblur="validateEmail(this)">
+                  placeholder="Ingrese Correo Electrónico" onblur="validateEmail(this)">
                 <div id="email-error" class="text-red-500 text-sm mt-1 hidden"></div>
                 <div id="email-loading" class="text-blue-500 text-sm mt-1 hidden">Verificando correo...</div>
               </div>
@@ -93,7 +93,7 @@
                 <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
                 <input type="password" name="password" id="password" required
                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                  oninput="validatePassword(this)">
+                  placeholder="Ingrese Contraseña" oninput="validatePassword(this)">
                 <div id="password-requirements" class="text-sm mt-1 hidden">
                   <div class="text-gray-600">La contraseña debe tener:</div>
                   <div id="req-length" class="text-red-500">• Mínimo 6 caracteres</div>
@@ -106,7 +106,7 @@
                 <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirmar Contraseña</label>
                 <input type="password" name="password_confirmation" id="password_confirmation" required
                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                  oninput="validatePasswordConfirmation(this)">
+                  placeholder="Confirme Contraseña" oninput="validatePasswordConfirmation(this)">
                 <div id="password-confirmation-error" class="text-red-500 text-sm mt-1 hidden">Las contraseñas no coinciden</div>
               </div>
             </div>
@@ -131,7 +131,7 @@
               <input type="text" name="colegiatura" id="colegiatura" maxlength="6"
                 oninput="validateColegiatura(this)"
                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
-                placeholder="123456">
+                placeholder="Ingrese Número de Colegiatura">
               <div id="colegiatura-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten 6 números</div>
             </div>
           </div>
