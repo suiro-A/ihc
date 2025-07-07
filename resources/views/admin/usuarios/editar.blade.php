@@ -20,6 +20,10 @@
       @csrf
       @method('PUT')
 
+      <!-- Campos ocultos para prevenir autocompletado no deseado -->
+      <input type="text" name="fake_email" id="fake_email" style="display:none;" autocomplete="username" tabindex="-1">
+      <input type="password" name="fake_password" autocomplete="new-password" style="display:none;" tabindex="-1">
+
       <div class="bg-white rounded-lg shadow mb-6">
         <div class="p-6 space-y-8">
           <!-- Información Personal -->
@@ -30,22 +34,25 @@
               <div>
                 <label for="nombres" class="block text-sm font-medium text-gray-700">Nombre</label>
                 <input type="text" name="nombres" id="nombres" required value="{{ old('nombres', $usuario->nombres) }}"
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                  placeholder="Nombre">
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
+                  placeholder="Nombre" oninput="validateNombres(this)">
+                <div id="nombres-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten letras y espacios</div>
               </div>
               <div>
                 <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos</label>
                 <input type="text" name="apellidos" id="apellidos" required value="{{ old('apellidos', $usuario->apellidos ?? '') }}"
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                  placeholder="Apellidos">
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
+                  placeholder="Apellidos" oninput="validateApellidos(this)">
+                <div id="apellidos-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten letras y espacios</div>
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
                 <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
                 <input type="tel" name="telefono" id="telefono" value="{{ old('telefono', $usuario->telefono ?? '') }}"
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                  placeholder="123456789">
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
+                  placeholder="123456789" oninput="validateTelefono(this)" maxlength="9">
+                <div id="telefono-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten números (máximo 9 dígitos)</div>
               </div>
             </div>
           </div>
@@ -58,13 +65,13 @@
               <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
                 <input type="email" name="email" id="email" required value="{{ old('email', $usuario->correo) }}"
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                   placeholder="ejemplo@clinica.com">
               </div>
               <div>
                 <label for="role" class="block text-sm font-medium text-gray-700">Rol</label>
                 <select name="role" id="role" required disabled
-                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2">
                   <option value="">Seleccionar rol</option>
                   @foreach ($roles as $rol)
                     <option value="{{ $rol->id_rol }}" {{ old('role', $usuario->rolNombre->rol) == $rol->rol ? 'selected' : '' }}>
@@ -85,7 +92,7 @@
             <div>
               <label for="especialidad" class="block text-sm font-medium text-gray-700">Especialidad (solo para doctores)</label>
               <select name="especialidad" id="especialidad"
-                class="mt-1 mb-4 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                class="mt-1 mb-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2">
                 <option value="">Seleccionar especialidad</option>
                 @foreach ($especialidades as $especialidad)
                   <option value="{{ $especialidad->id_especialidad }}"
@@ -96,10 +103,11 @@
             </div>
             <div>
               <label for="colegiatura" class="block text-sm font-medium text-gray-700">Número de colegiatura</label>
-              <input type="text" name="colegiatura" id="colegiatura" maxlength="10"
-                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                placeholder="Número de colegiatura" value="{{ old('colegiatura', $usuario->medico?->num_colegiatura) }}">
+              <input type="text" name="colegiatura" id="colegiatura" maxlength="6"
+                oninput="validateColegiatura(this)"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
+                placeholder="123456" value="{{ old('colegiatura', $usuario->medico?->num_colegiatura) }}">
+              <div id="colegiatura-error" class="text-red-500 text-sm mt-1 hidden">Solo se permiten 6 números</div>
             </div>
           </div>
 
@@ -120,6 +128,72 @@
   </div>
 
   <script>
+    // Validación de nombres (solo letras y espacios)
+    function validateNombres(input) {
+      const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/;
+      const errorDiv = document.getElementById('nombres-error');
+      
+      if (!regex.test(input.value)) {
+        input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        errorDiv.classList.remove('hidden');
+        input.classList.add('border-red-500');
+      } else {
+        errorDiv.classList.add('hidden');
+        input.classList.remove('border-red-500');
+      }
+    }
+
+    // Validación de apellidos (solo letras y espacios)
+    function validateApellidos(input) {
+      const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/;
+      const errorDiv = document.getElementById('apellidos-error');
+      
+      if (!regex.test(input.value)) {
+        input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        errorDiv.classList.remove('hidden');
+        input.classList.add('border-red-500');
+      } else {
+        errorDiv.classList.add('hidden');
+        input.classList.remove('border-red-500');
+      }
+    }
+
+    // Validación de teléfono (solo números, máximo 9)
+    function validateTelefono(input) {
+      const regex = /^[0-9]*$/;
+      const errorDiv = document.getElementById('telefono-error');
+      
+      if (!regex.test(input.value)) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+        errorDiv.classList.remove('hidden');
+        input.classList.add('border-red-500');
+      } else {
+        errorDiv.classList.add('hidden');
+        input.classList.remove('border-red-500');
+      }
+    }
+
+    // Validación de colegiatura (solo 6 números)
+    function validateColegiatura(input) {
+      const regex = /^[0-9]*$/;
+      const errorDiv = document.getElementById('colegiatura-error');
+      
+      if (!regex.test(input.value)) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+        errorDiv.classList.remove('hidden');
+        input.classList.add('border-red-500');
+      } else if (input.value.length > 6) {
+        input.value = input.value.substring(0, 6);
+        errorDiv.textContent = 'Máximo 6 números';
+        errorDiv.classList.remove('hidden');
+        input.classList.add('border-red-500');
+      } else {
+        errorDiv.classList.add('hidden');
+        input.classList.remove('border-red-500');
+      }
+    }
+
+    // Mostrar/ocultar información profesional según el rol
     document.addEventListener('DOMContentLoaded', function() {
       const roleSelect = document.getElementById('role');
       const infoProfesional = document.getElementById('info-profesional');
@@ -135,6 +209,25 @@
           infoProfesional.classList.add('hidden');
         }
       });
+    });
+
+    // Validación del formulario antes de enviar
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const requiredFields = ['nombres', 'apellidos', 'email'];
+      let hasErrors = false;
+      
+      requiredFields.forEach(field => {
+        const input = document.getElementById(field);
+        if (!input.value.trim()) {
+          hasErrors = true;
+          input.classList.add('border-red-500');
+        }
+      });
+      
+      if (hasErrors) {
+        e.preventDefault();
+        alert('Por favor, corrija los errores en el formulario');
+      }
     });
   </script>
 @endsection

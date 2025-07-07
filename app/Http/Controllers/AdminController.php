@@ -335,4 +335,14 @@ class AdminController extends Controller
           return back();
       }
   }
+
+  public function verificarEmail(Request $request)
+  {
+      $email = $request->input('email');
+      
+      // Verificar si el email ya existe en la base de datos
+      $exists = Usuario::where('correo', $email)->exists();
+      
+      return response()->json(['exists' => $exists]);
+  }
 }

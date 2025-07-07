@@ -77,25 +77,42 @@
     <!-- Citas de Hoy y Accesos Rápidos -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-lg font-semibold mb-4">Citas de Hoy</h3>
-            <p class="text-gray-600 text-sm mb-4">Citas programadas para hoy</p>
+            <h3 class="text-lg font-semibold mb-4 text-gray-800">Citas de Hoy</h3>
+            <p class="text-gray-600 text-sm mb-4">Próximas citas agendadas para hoy</p>
             
             <div class="space-y-4">
-                @forelse($citasHoy->take(5) as $cita)
-                    <div class="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                        <div>
-                            <p class="font-medium">{{ $cita['paciente']['nombre'] }} {{ $cita['paciente']['apellidos'] }}</p>
-                            <p class="text-sm text-gray-500">{{ $cita['doctor']['name'] }}</p>
+                @forelse($citasHoy as $cita)
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0 last:pb-0 rounded-lg p-3">
+                        <div class="flex-1">
+                            <p class="font-semibold text-gray-900">{{ $cita['paciente']['nombre'] }} {{ $cita['paciente']['apellidos'] }}</p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                <span class="font-medium">Dr.</span> {{ $cita['doctor']['name'] }}
+                            </p>
                         </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-sm font-medium">{{ $cita['hora'] }}</span>
-                            <span class="px-2 py-1 text-xs rounded-full {{ $cita['estado'] === 'agendada' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
-                                {{ ucfirst($cita['estado']) }}
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-medium text-gray-700">{{ $cita['hora'] }}</span>
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 border border-green-300 shadow-sm">
+                                Agendada
                             </span>
                         </div>
                     </div>
                 @empty
-                    <p class="text-gray-500 text-center py-4">No hay citas programadas para hoy</p>
+                    <div class="text-center py-12">
+                        <div class="text-gray-400 mb-3">
+                            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-gray-600 font-semibold text-lg mb-2">No hay citas agendadas para hoy</p>
+                        <p class="text-gray-500 text-sm mb-4">Las próximas citas aparecerán aquí cuando se programen</p>
+                        <a href="{{ route('recepcionista.citas.agendar') }}" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Agendar nueva cita
+                        </a>
+                    </div>
                 @endforelse
             </div>
         </div>

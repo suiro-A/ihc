@@ -696,6 +696,118 @@ class DoctorController extends Controller
         }
     }
 
+    public function finalizarConsulta(Request $request, $citaId)
+    {
+        $request->validate([
+            'sintomas_reportados' => 'required|string|max:1000',
+            'exploracion_fisica' => 'required|string|max:1000',
+            'diagnostico' => 'required|string|max:255',
+            'indicaciones' => 'required|string|max:1000',
+            'medicamentos' => 'nullable|array',
+            'medicamentos.*.medicamento' => 'nullable|exists:medicamento,id_medicamento',
+            'medicamentos.*.dosis' => 'nullable|string|max:100',
+            'medicamentos.*.frecuencia' => 'nullable|exists:frecuencia,id_frecuencia',
+            'medicamentos.*.duracion' => 'nullable|string|max:50',
+            'medicamentos.*.instrucciones' => 'nullable|string|max:500'
+        ], [
+            'sintomas_reportados.required' => 'Los síntomas reportados son obligatorios.',
+            'exploracion_fisica.required' => 'La exploración física es obligatoria.',
+            'diagnostico.required' => 'El diagnóstico es obligatorio.',
+            'indicaciones.required' => 'Las indicaciones son obligatorias.'
+        ]);
+
+        try {
+            DB::beginTransaction();
+            
+            // Verificar que la cita existe y pertenece al doctor actual
+            $doctor = $this->getCurrentUser();
+            $cita = Cita::with(['historial.paciente'])
+                        ->where('id_cita', $citaId)
+                        ->whereHas('medico.usuario', function ($q) use ($doctor) {
+                            $q->where('id_usuario', $doctor['id']);
+                        })
+                        ->first();
+
+            if (!$cita) {
+                session()->flash('swal', [
+                    'title' => 'Error',
+                    'text' => 'Cita no encontrada',
+                    'icon' => 'error'
+                ]);
+                return redirect()->back();
+            }
+
+            // 1. Guardar/actualizar apuntes
+            \App\Models\Apuntes::updateOrCreate(
+                ['id_cita' => $citaId],
+                [
+                    'sintomas_reportados' => $request->sintomas_reportados,
+                    'exploracion_fisica' => $request->exploracion_fisica
+                ]
+            );
+
+            // 2. Guardar/actualizar diagnóstico
+            \App\Models\Diagnostico::updateOrCreate(
+                ['id_cita' => $citaId],
+                ['descripcion' => $request->diagnostico]
+            );
+
+            // 3. Guardar/actualizar indicaciones
+            \App\Models\Indicaciones::updateOrCreate(
+                ['id_cita' => $citaId],
+                ['descripcion' => $request->indicaciones]
+            );
+
+            // 4. Guardar receta médica si hay medicamentos
+            if ($request->has('medicamentos') && !empty(array_filter($request->medicamentos))) {
+                // Crear o encontrar la receta
+                $receta = Receta::firstOrCreate(['id_cita' => $citaId]);
+
+                // Eliminar medicamentos anteriores
+                RecetaMedicamento::where('id_receta', $receta->id_receta)->delete();
+
+                // Guardar nuevos medicamentos
+                foreach ($request->medicamentos as $medicamentoData) {
+                    if (!empty($medicamentoData['medicamento'])) {
+                        RecetaMedicamento::create([
+                            'id_receta' => $receta->id_receta,
+                            'id_medicamento' => $medicamentoData['medicamento'],
+                            'dosis' => $medicamentoData['dosis'],
+                            'id_frecuencia' => $medicamentoData['frecuencia'],
+                            'duración' => $medicamentoData['duracion'],
+                            'instrucciones' => $medicamentoData['instrucciones'] ?? null
+                        ]);
+                    }
+                }
+            }
+
+            // 5. Actualizar estado de la cita a "Atendida"
+            $cita->update(['estado' => 'Atendida']);
+
+            DB::commit();
+
+            session()->flash('swal', [
+                'title' => '¡Consulta Finalizada!',
+                'text' => 'La consulta ha sido completada exitosamente',
+                'icon' => 'success'
+            ]);
+
+            return redirect()->route('doctor.agenda');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::error('Error al finalizar consulta: ' . $e->getMessage());
+            
+            session()->flash('swal', [
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al finalizar la consulta',
+                'icon' => 'error'
+            ]);
+            
+            return redirect()->back();
+        }
+    }
+
     public function actualizarEstado(Request $request, $citaId)
     {
         $request->validate([

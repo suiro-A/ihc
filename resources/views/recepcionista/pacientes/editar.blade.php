@@ -31,14 +31,14 @@
                         <div>
                             <label for="nombre" class="block text-sm font-medium text-gray-700">Nombres</label>
                             <input type="text" name="nombres" id="nombres" required
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('nombres', $paciente->nombres) }}"
                                    placeholder="Nombres">
                         </div>
                         <div>
                             <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos</label>
                             <input type="text" name="apellidos" id="apellidos" required
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('apellidos', $paciente->apellidos) }}"
                                    placeholder="Apellidos">
                         </div>
@@ -48,14 +48,14 @@
                         <div>
                             <label for="dni" class="block text-sm font-medium text-gray-700">DNI/Documento</label>
                             <input type="text" name="dni" id="dni" required
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('dni', $paciente->dni) }}"
                                    placeholder="ingrese el DNI o documento">
                         </div>
                         <div>
                             <label for="fecha_nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
                             <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" required
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('fecha_nacimiento', $paciente->fecha_nac ? $paciente->fecha_nac->format('Y-m-d') : '') }}">
                         </div>
                     </div>
@@ -64,7 +64,7 @@
                         <div>
                             <label for="genero" class="block text-sm font-medium text-gray-700">Género</label>
                             <select name="genero" id="genero" required
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2">
                                 <option value="">Seleccionar</option>
                                 <option value="masculino" {{ old('genero', $paciente->sexo ? 'masculino' : 'femenino') == 'masculino' ? 'selected' : '' }}>Masculino</option>
                                 <option value="femenino" {{ old('genero', $paciente->sexo ? 'masculino' : 'femenino') == 'femenino' ? 'selected' : '' }}>Femenino</option>
@@ -81,14 +81,14 @@
                         <div>
                             <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
                             <input type="tel" name="telefono" id="telefono" required
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('telefono', $paciente->telefono) }}"
                                    placeholder="123456789">
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
                             <input type="email" name="email" id="email"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 px-2"
                                    value="{{ old('email', $paciente->correo) }}"
                                    placeholder="ejemplo@correo.com">
                         </div>
@@ -100,10 +100,10 @@
                     <h3 class="text-lg font-semibold mb-2">Información Médica</h3>
                     <p class="text-gray-600 mb-4">Datos médicos relevantes</p>
                     <div class="space-y-4">
-                        {{-- Alergias (editable) --}}
+                        {{-- Alergias --}}
                         <div>
                             <label for="alergias" class="block text-sm font-medium text-gray-700">Alergias</label>
-                            <select name="alergias[]" id="alergias" class="mi-select" multiple style="width: 100%">
+                            <select name="alergias[]" id="alergias" class="mi-select text-sm text-left align-middle" multiple style="width: 100%">
                                 @foreach($alergias as $alergia)
                                     <option value="{{ $alergia->id_alergia }}"
                                         {{ in_array($alergia->id_alergia, $alergiasSeleccionadas ?? []) ? 'selected' : '' }}>
@@ -113,10 +113,10 @@
                             </select>
                         </div>
 
-                        {{-- Enfermedades Crónicas (editable) --}}
+                        {{-- Enfermedades Crónicas --}}
                         <div>
                             <label for="cronicas" class="block text-sm font-medium text-gray-700">Enfermedades Crónicas</label>
-                            <select name="cronicas[]" id="cronicas" class="mi-select" multiple style="width: 100%">
+                            <select name="cronicas[]" id="cronicas" class="mi-select text-sm text-left align-middle" multiple style="width: 100%">
                                 @foreach($cronicas as $cronica)
                                     <option value="{{ $cronica->id_enfermedad }}"
                                         {{ in_array($cronica->id_enfermedad, $cronicasSeleccionadas ?? []) ? 'selected' : '' }}>
@@ -126,10 +126,10 @@
                             </select>
                         </div>
 
-                        {{-- Medicamentos (editable) --}}
+                        {{-- Medicamentos --}}
                         <div>
                             <label for="medicamentos" class="block text-sm font-medium text-gray-700">Medicamentos</label>
-                            <select name="medicamentos[]" id="medicamentos" class="mi-select" multiple style="width: 100%">
+                            <select name="medicamentos[]" id="medicamentos" class="mi-select text-sm text-left align-middle" multiple style="width: 100%">
                                 @foreach($medicamentos as $medicamento)
                                     <option value="{{ $medicamento->id_medicamento }}"
                                         {{ in_array($medicamento->id_medicamento, $medicamentosSeleccionados ?? []) ? 'selected' : '' }}>

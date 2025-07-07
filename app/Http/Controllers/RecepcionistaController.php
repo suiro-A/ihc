@@ -24,7 +24,7 @@ class RecepcionistaController extends Controller
 
     public function dashboard()
     {
-        // Obtener citas de hoy desde la base de datos real
+        // Obtener citas de hoy desde la base de datos real, solo las agendadas
         $citasHoy = Cita::with([
             'historial.paciente',
             'medico.usuario', 
@@ -32,7 +32,9 @@ class RecepcionistaController extends Controller
             'horaConsulta'
         ])
         ->whereDate('fecha', Carbon::today())
+        ->where('estado', 'Agendada')
         ->orderBy('id_hora')
+        ->take(10)
         ->get();
 
         // Transformar los datos para la vista
@@ -56,11 +58,13 @@ class RecepcionistaController extends Controller
         });
 
         // Calcular estadísticas reales
+        $todasLasCitasHoy = Cita::whereDate('fecha', Carbon::today())->get();
+        
         $stats = [
-            'citas_hoy' => $citasHoy->count(),
-            'proxima_cita' => $citasHoy->where('estado', 'Agendada')->first(),
+            'citas_hoy' => $todasLasCitasHoy->count(),
+            'proxima_cita' => $citasHoy->first(),
             'pacientes_registrados' => \App\Models\Paciente::count(),
-            'citas_confirmadas' => $citasHoy->where('estado', 'Agendada')->count(),
+            'citas_confirmadas' => $citasHoy->count(),
         ];
         
         return view('recepcionista.dashboard', compact('stats', 'citasHoy'));

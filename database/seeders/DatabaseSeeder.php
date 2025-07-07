@@ -13,6 +13,11 @@ class DatabaseSeeder extends Seeder
             EspecialidadSeeder::class,
             TurnoSeeder::class,
             UsuarioSeeder::class,
+            FrecuenciaSeeder::class,
+            MedicamentoSeeder::class,
+            AlergiaSeeder::class,
+            EnfermedadCronicaSeeder::class,
+
         ]);
     }
 }

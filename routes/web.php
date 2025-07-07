@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/citas/{id}/examenes', [DoctorController::class, 'guardarExamenes'])->name('citas.examenes');
         Route::post('/citas/{id}/receta', [DoctorController::class, 'guardarReceta'])->name('citas.receta');
         Route::post('/citas/{id}/indicaciones', [DoctorController::class, 'guardarIndicaciones'])->name('citas.indicaciones');
+        Route::post('/citas/{id}/finalizar', [DoctorController::class, 'finalizarConsulta'])->name('citas.finalizar');
         Route::patch('/citas/{id}/estado', [DoctorController::class, 'actualizarEstado'])->name('citas.actualizar-estado');
     });
 
@@ -61,6 +62,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/usuarios/{id}/editar', [AdminController::class, 'editarUsuario'])->name('usuarios.editar');
         Route::put('/usuarios/{id}', [AdminController::class, 'actualizarUsuario'])->name('usuarios.actualizar');
         Route::patch('/usuarios/{id}/toggle', [AdminController::class, 'toggleUsuario'])->name('usuarios.toggle');
+        Route::post('/usuarios/verificar-email', [AdminController::class, 'verificarEmail'])->name('usuarios.verificar-email');
         
         // Disponibilidad
         Route::get('/disponibilidad', [AdminController::class, 'disponibilidad'])->name('disponibilidad.index');

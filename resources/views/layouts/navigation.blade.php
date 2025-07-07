@@ -115,7 +115,7 @@
                                           {{ request()->routeIs('recepcionista.citas.*') ? 'bg-green-100 font-bold text-green-700 border-r-4 border-green-500' : '' }}
                                           px-4 justify-start"
                                 >
-                                    <img src="{{ asset('icons/cita_me_agregar.png') }}" alt="Citas" class="w-7 h-7 flex-shrink-0 mr-3">
+                                    <img src="{{ asset('icons/citas.png') }}" alt="Citas" class="w-7 h-7 flex-shrink-0 mr-3">
                                     <span>Citas</span>
                                 </a>
                             </li>
