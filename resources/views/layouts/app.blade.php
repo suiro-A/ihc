@@ -18,6 +18,11 @@
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+
+
+
+
+
     <!-- Estilos para asegurar que el contenido no choque con la sidebar -->
     <style>
         /* Asegurar que el contenido principal siempre tenga margen suficiente */

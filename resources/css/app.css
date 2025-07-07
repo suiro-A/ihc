@@ -9,3 +9,44 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+*{
+    .dt-search{
+        display: flex;
+        justify-content: start;
+        align-items: center;
+    }
+    .dt-search label{
+        font-weight: 450 !important;
+        font-size: 18px;
+        color: rgb(54, 54, 54);
+        display: none;
+    }
+    .dt-length{
+        display: flex;
+        justify-content:space-around;
+    }
+#dt-search-0 {
+     flex-grow: 1;        /* hace que el input ocupe todo el espacio restante */
+    border: 2.5px solid #ccc !important;
+    border-radius: 8px !important;
+    padding: 8px 14px !important;
+    /* width: 100% !important; */
+    min-width: 100px; 
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    outline: none;
+}
+
+/* Efecto al hacer foco */
+#dt-search-0:focus {
+    border-color: #4caf4f93 !important; /* verde moderno */
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.4);
+}
+
+/* Placeholder más claro */
+#dt-search-0::placeholder {
+    color: #494949a4;
+    /* font-style: italic; */
+}
+
+}

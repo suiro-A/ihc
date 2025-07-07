@@ -45,7 +45,7 @@
                 @endforeach
             </div>
             {{-- Buscador --}}
-            <form method="GET" class="mb-4 flex items-center gap-2">
+            {{-- <form method="GET" class="mb-4 flex items-center gap-2">
                 <input type="hidden" name="estado" value="{{ request('estado', 'todas') }}">
                 <div class="relative w-full">
                     <input type="text" name="buscar" value="{{ request('buscar') }}"
@@ -58,8 +58,10 @@
                     </span>
                 </div>
                 <button type="submit" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Buscar</button>
-            </form>
-            <div class="overflow-x-auto">
+            </form> --}}
+
+            {{--* Tabla --}}
+            {{-- <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -101,6 +103,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    
                                     @if($cita['estado'] === 'Agendada')
                                         <div class="flex items-center gap-2">
                                             <a href="{{ route('recepcionista.citas.editar', $cita['id']) }}" 
@@ -124,8 +127,105 @@
             </div>
             <div class="mt-4 text-sm text-gray-500">
                 Mostrando {{ count($citasTransformadas) }} {{ Str::plural('registro', count($citasTransformadas)) }}
+            </div> --}}
+
+            {{-- ! Inicio de tabla de busqueda --}}
+
+            <div class="p-0">
+                <div class="overflow-x-auto">
+                    <div class="card">
+                        <div class="card-body">
+                                <table id="buscarcita" class="min-w-full divide-y divide-gray-200 display">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Paciente</th>
+                                            <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">doctor</th>
+                                            <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Especialidad</th>
+                                            <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                            <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Hora</th>
+                                            <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">estado</th>
+                                            <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($citasTransformadas as $cita)
+                                            <tr>
+                                                <td class="px-6 py-4 text-center text-sm text-gray-700">{{ $cita['paciente']['nombre'] }} {{ $cita['paciente']['apellidos'] }}</td>
+                                                <td class="px-6 py-4 text-center text-sm text-gray-700">{{ $cita['doctor']['name'] }}</td>
+                                                <td class="px-6 py-4 text-center text-sm text-gray-700">{{ $cita['doctor']['especialidad'] }}</td>
+                                                <td class="px-6 py-4 text-center text-sm text-gray-700">{{ \Carbon\Carbon::parse($cita['fecha'])->format('d/m/Y') }}</td>
+                                                <td class="px-6 py-4 text-center text-sm text-gray-700">{{ \Carbon\Carbon::parse($cita['hora'])->format('g:i A') }}</td>
+                                                <td class="px-6 py-4 text-center text-sm text-gray-700">
+                                                    @php
+                                                        $estado = $cita['estado'];
+                                                        $clase = $estado === 'Agendada' ? 'bg-green-100 text-green-800' : ($estado === 'Atendida' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800');
+                                                        $texto = $estado === 'Agendada' ? 'Agendada' : ($estado === 'Atendida' ? 'Atendida' : 'Ausente');
+                                                    @endphp
+                                                    <span class="px-2 py-1 text-xs rounded-full {{ $clase }}">
+                                                        {{ $texto }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-2 text-center align-middle space-x-1">
+
+                                                    {{-- Todo Se puede cambiar por fecha por ejemplo si no paso más de un dia luego de su cita que no se pueda editar o sea reprogramar --}}
+                                                    @if($cita['estado'] === 'Agendada')
+                                                        <div class="flex items-center gap-2">
+                                                            <a href="{{ route('recepcionista.citas.editar', $cita['id']) }}" 
+                                                            class="inline-flex items-center px-2 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700" title="Editar">
+                                                                <img src="{{ asset('icons/cita_me_editar.png') }}" alt="Editar cita" class="w-8 h-8 inline-block mr-2">
+                                                                Editar
+                                                            </a>
+                                                        </div>
+                                                    @endif
+
+                                                </td>
+                                            </tr>
+                                            
+                                        @endforeach
+
+                                    </tbody>
+                                </table>
+
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+@endsection
+
+@section('js')
+<script>
+new DataTable('#buscarcita', {
+    responsive:true,        
+     autoWidth: false,
+    
+     
+    language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.5/i18n/es-ES.json'
+ 
+        },
+        columnDefs: [
+            {
+                targets: -1,      // Última columna (el botón)
+                orderable: false, // Desactiva ordenamiento
+                searchable: false // (opcional) evita que entre en el buscador
+            }
+        ],
+    dom:'<"row mb-3"<"col-9"f><"col-3"l>>t<"row mt-6"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>'
+    });
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    
+        const searchInput = document.querySelector('#dt-search-0');
+        if (searchInput) {
+            searchInput.placeholder = 'Buscar por Nombre, Doctor o Fecha...';
+            // searchInput.style.border = '2px solid #4CAF50';
+        }
+  
+});
+
+</script>
 @endsection

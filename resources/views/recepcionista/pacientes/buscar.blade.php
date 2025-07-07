@@ -20,58 +20,8 @@
 
         {{-- ! Inicio de tabla de busqueda --}}
 
-        {{-- <div class="p-6">
-            
-            <form method="GET" action="{{ route('recepcionista.pacientes.buscar') }}" class="mb-4">
-                <div class="relative">
-                    <input
-                        type="text"
-                        name="buscar"
-                        value="{{ request('buscar') }}"
-                        class="w-full pl-10 pr-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Buscar por nombre o DNI...">
-                    <span class="absolute left-3 top-2.5 text-gray-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/>
-                        </svg>
-                    </span>
-                </div>
-            </form>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-2 text-center">Nombre</th>
-                            <th class="px-4 py-2 text-center">DNI</th>
-                            <th class="px-4 py-2 text-center">Edad</th>
-                            <th class="px-4 py-2 text-center">Teléfono</th>
-                            <th class="px-4 py-2 text-center">Correo</th>
-                            <th class="px-4 py-2"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="pacientes-tbody">
-                        @foreach($allPacientes as $paciente)
-                            <tr>
-                                <td class="px-4 py-2 text-center align-middle">{{ $paciente->nombres }} {{ $paciente->apellidos }}</td>
-                                <td class="px-4 py-2 text-center align-middle">{{ $paciente->dni }}</td>
-                                <td class="px-4 py-2 text-center align-middle">{{ $paciente->edad ?? '-' }}</td>
-                                <td class="px-4 py-2 text-center align-middle">{{ $paciente->telefono }}</td>
-                                <td class="px-4 py-2 text-center align-middle">{{ $paciente->correo }}</td>
-                                <td class="px-4 py-2 text-center align-middle space-x-1">
-                                    <a href="{{ route('recepcionista.pacientes.editar', $paciente->id_paciente) }}" 
-                                           class="inline-flex items-center px-2 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700">
-                                            <img src="{{ asset('icons/paciente_editar.png') }}" alt="Ícono de editar paciente" class="w-8 h-8 inline-block mr-4">
-                                            Editar
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div id="paginacion-info"></div>
-        </div> --}}
-        <div class="p-6">
+     
+        <div class="p-0">
             <div class="overflow-x-auto">
                 <div class="card">
                     <div class="card-body">
@@ -120,12 +70,14 @@
 
 @section('js')
 <script>
-new DataTable('#example', {        
+new DataTable('#example', {
+    responsive:true,        
      autoWidth: false,
     language: {
             url: 'https://cdn.datatables.net/plug-ins/1.13.5/i18n/es-ES.json'
  
         },
+        
         columnDefs: [
             {
                 targets: -1,      // Última columna (el botón)
@@ -133,7 +85,21 @@ new DataTable('#example', {
                 searchable: false // (opcional) evita que entre en el buscador
             }
         ]
+        ,
+    dom: '<"row mb-3"<"col-9"f><"col-3"l>>t<"row mt-6"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>'
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+    
+        const searchInput = document.querySelector('#dt-search-0');
+        if (searchInput) {
+            searchInput.placeholder = 'Buscar por Nombre, Dni o Correo...';
+            // searchInput.style.border = '2px solid #4CAF50';
+        }
+  
+});
+
 // document.addEventListener('DOMContentLoaded', function() {
 //     const buscador = document.querySelector('input[name="buscar"]');
 //     const tbody = document.getElementById('pacientes-tbody');
